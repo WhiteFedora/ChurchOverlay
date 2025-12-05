@@ -18,8 +18,18 @@ function updateLists(lists) {
         else if (lists.tasks.length > 0) tSel.selectedIndex = 1;
 
         // Manage Lists UI
-        document.getElementById('list-people').innerHTML = lists.people.map((p, i) => `<li class="flex justify-between">${p} <span onclick="remItem('people',${i})" class="cursor-pointer text-red-500 font-bold">x</span></li>`).join('');
-        document.getElementById('list-tasks').innerHTML = lists.tasks.map((t, i) => `<li class="flex justify-between">${t} <span onclick="remItem('tasks',${i})" class="cursor-pointer text-red-500 font-bold">x</span></li>`).join('');
+        // Manage Lists UI
+        const genListHtml = (items, type) => items.map((item, i) => `
+            <li class="flex justify-between items-center group p-1 hover:bg-slate-100 rounded transition-colors">
+                <span class="truncate">${item}</span>
+                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onclick="editItem('${type}', ${i})" class="text-slate-400 hover:text-blue-600 font-bold" title="Edit">✎</button>
+                    <button onclick="remItem('${type}', ${i})" class="text-slate-400 hover:text-red-500 font-bold" title="Delete">×</button>
+                </div>
+            </li>`).join('');
+
+        document.getElementById('list-people').innerHTML = genListHtml(lists.people, 'people');
+        document.getElementById('list-tasks').innerHTML = genListHtml(lists.tasks, 'tasks');
 
         // Slates Grid
         const grid = document.getElementById('slates-grid');
@@ -156,7 +166,7 @@ function toggleLowerThird() {
         // Handle Timeout
         const isTimeout = document.querySelector('input[name="lt-mode"][value="timeout"]').checked;
         if (isTimeout) {
-            const sec = parseFloat(document.getElementById('inp-lt-timeout').value) || 8;
+            const sec = parseFloat(document.getElementById('inp-lt-timeout').value) || 10;
             console.log(`Lower Third will auto-hide in ${sec} seconds`);
             ltTimeoutTimer = setTimeout(() => {
                 console.log('Timeout fired - hiding Lower Third');

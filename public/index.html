@@ -52,17 +52,17 @@
                         <div class="flex items-center justify-between bg-slate-50 p-2 rounded border">
                             <div class="flex gap-3">
                                 <label class="flex items-center gap-1 text-xs font-bold text-slate-600 cursor-pointer">
-                                    <input type="radio" name="lt-mode" value="forever" checked
-                                        onchange="toggleLtMode()">
+                                    <input type="radio" name="lt-mode" value="forever" onchange="toggleLtMode()">
                                     Forever
                                 </label>
                                 <label class="flex items-center gap-1 text-xs font-bold text-slate-600 cursor-pointer">
-                                    <input type="radio" name="lt-mode" value="timeout" onchange="toggleLtMode()">
+                                    <input type="radio" name="lt-mode" value="timeout" checked
+                                        onchange="toggleLtMode()">
                                     Timeout
                                 </label>
                             </div>
-                            <input id="inp-lt-timeout" type="number"
-                                class="w-16 border rounded p-1 text-xs text-center hidden" value="8">
+                            <input id="inp-lt-timeout" type="number" class="w-16 border rounded p-1 text-xs text-center"
+                                value="10">
                         </div>
                         <button id="btn-toggle-lt" onclick="toggleLowerThird()"
                             class="w-full bg-blue-900 text-white py-3 rounded font-bold">SHOW LOWER THIRD</button>
@@ -154,7 +154,14 @@
             <h3 class="text-xl font-bold mb-4 font-serif text-blue-900">Manage Lists</h3>
             <div class="grid grid-cols-2 gap-6 h-64">
                 <div class="flex flex-col h-full">
-                    <h4 class="text-xs font-bold uppercase mb-2">People</h4>
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-xs font-bold uppercase">People</h4>
+                        <button onclick="triggerCsv('people')"
+                            class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-0.5 rounded text-slate-600 font-bold transition-colors">Import
+                            CSV</button>
+                        <input type="file" id="csv-people" class="hidden" accept=".csv"
+                            onchange="processCsvUpload('people', this)">
+                    </div>
                     <ul id="list-people"
                         class="flex-1 overflow-y-auto border rounded p-2 text-sm bg-slate-50 space-y-1 mb-2"></ul>
                     <div class="flex gap-2"><input id="new-person" placeholder="Name"
@@ -162,7 +169,14 @@
                             class="bg-blue-600 text-white px-3 rounded font-bold">+</button></div>
                 </div>
                 <div class="flex flex-col h-full">
-                    <h4 class="text-xs font-bold uppercase mb-2">Tasks</h4>
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-xs font-bold uppercase">Tasks</h4>
+                        <button onclick="triggerCsv('tasks')"
+                            class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-0.5 rounded text-slate-600 font-bold transition-colors">Import
+                            CSV</button>
+                        <input type="file" id="csv-tasks" class="hidden" accept=".csv"
+                            onchange="processCsvUpload('tasks', this)">
+                    </div>
                     <ul id="list-tasks"
                         class="flex-1 overflow-y-auto border rounded p-2 text-sm bg-slate-50 space-y-1 mb-2"></ul>
                     <div class="flex gap-2"><input id="new-task" placeholder="Task"
