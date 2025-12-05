@@ -105,6 +105,14 @@ io.on('connection', (socket) => {
         io.emit('lists_changed', appState.lists); // Broadcast to all
         saveState();
     });
+
+    // Handle Theme Configuration Updates (From Designer)
+    socket.on('update_theme_config', (config) => {
+        console.log('Server received theme config update');
+        appState.theme_config = config;
+        io.emit('theme_config_updated', appState.theme_config);
+        saveState();
+    });
 });
 
 // --- START ---

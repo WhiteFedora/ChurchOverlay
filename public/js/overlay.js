@@ -59,4 +59,97 @@ function updateOverlay(status) {
     } else {
         startMessageEl.classList.remove('active');
     }
+
+    // Apply Theme if valid
+    if (window.currentThemeConfig) {
+        applyTheme(window.currentThemeConfig);
+    }
+}
+
+// --- THEME ENGINE ---
+window.currentThemeConfig = null;
+
+function updateThemeConfig(config) {
+    console.log("Applying Theme Config:", config);
+    window.currentThemeConfig = config;
+    applyTheme(config);
+}
+
+function applyTheme(config) {
+    if (!config) return;
+
+    const lt = document.getElementById('comp-lt');
+    const nameEl = document.getElementById('el-name');
+    const roleEl = document.getElementById('el-role');
+
+    // Box Styles
+    lt.style.width = `${config.box.width}px`;
+    lt.style.height = `${config.box.height}px`;
+    lt.style.left = `${config.box.x}%`;
+    lt.style.top = `${config.box.y}%`;
+    // We must reset bottom/right to auto to allow top/left to work, and override the CSS defaults
+    lt.style.bottom = 'auto';
+    lt.style.right = 'auto';
+
+    // Match Designer centering
+    lt.style.setProperty('--lt-base-transform', 'translate(-50%, -50%)');
+
+    // Background
+    if (config.box.bg_color.startsWith('#')) {
+        // Hex to RGB for opacity
+        const hex = config.box.bg_color;
+        let c;
+        if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+            c = hex.substring(1).split('');
+            if (c.length == 3) {
+                c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+            }
+            c = '0x' + c.join('');
+            const r = (c >> 16) & 255;
+            const g = (c >> 8) & 255;
+            const b = c & 255;
+            lt.style.background = `rgba(${r},${g},${b},${config.box.opacity})`;
+            lt.style.setProperty('--lt-bg', `rgba(${r},${g},${b},${config.box.opacity})`); // helper for other css
+        }
+    } else {
+        lt.style.background = config.box.bg_color;
+    }
+
+    lt.style.borderRadius = `${config.box.radius}px`;
+    lt.style.borderLeft = `${config.box.border_left}px solid ${config.box.border_color}`;
+
+    // Layout
+    lt.style.display = 'flex';
+    lt.style.flexDirection = 'column';
+    lt.style.justifyContent = 'center'; // Vertical centering
+
+    if (config.layout.align === 'start') {
+        lt.style.alignItems = 'flex-start';
+        lt.style.textAlign = 'left';
+    } else if (config.layout.align === 'end') {
+        lt.style.alignItems = 'flex-end';
+        lt.style.textAlign = 'right';
+    } else {
+        lt.style.alignItems = 'center';
+        lt.style.textAlign = 'center';
+    }
+
+    lt.style.gap = `${config.layout.gap}px`;
+    lt.style.paddingLeft = `${config.layout.padding_x}px`;
+    lt.style.paddingRight = `${config.layout.padding_x}px`;
+
+    // Name styles
+    nameEl.style.fontFamily = config.name.font;
+    nameEl.style.fontSize = `${config.name.size}px`;
+    nameEl.style.color = config.name.color;
+    nameEl.style.fontWeight = config.name.weight;
+    nameEl.style.textTransform = config.name.transform;
+    nameEl.style.textShadow = config.name.shadow ? '2px 2px 4px rgba(0,0,0,0.5)' : 'none';
+
+    // Role styles
+    roleEl.style.fontFamily = config.role.font;
+    roleEl.style.fontSize = `${config.role.size}px`;
+    roleEl.style.color = config.role.color;
+    roleEl.style.fontWeight = config.role.weight;
+    roleEl.style.textTransform = config.role.transform;
 }

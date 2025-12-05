@@ -10,17 +10,31 @@ socket.on('disconnect', () => {
 });
 
 socket.on('init_state', (state) => {
-    updateStatus(state.status);
-    updateLists(state.lists);
-    updateOverlay(state.status);
+    if (typeof updateStatus === 'function') updateStatus(state.status);
+    if (typeof updateLists === 'function') updateLists(state.lists);
+
+    // Theme first, then overlay
+    if (state.theme_config && typeof updateThemeConfig === 'function') {
+        updateThemeConfig(state.theme_config);
+    }
+
+    if (typeof updateOverlay === 'function') updateOverlay(state.status);
 });
 
 socket.on('status_changed', (status) => {
     console.log('status_changed received:', status);
     updateOverlay(status);
-    updateStatus(status);
+    // updateStatus is for dashboard only, check existence
+    if (typeof updateStatus === 'function') updateStatus(status);
 });
-socket.on('lists_changed', (lists) => updateLists(lists));
+
+socket.on('theme_config_updated', (config) => {
+    if (typeof updateThemeConfig === 'function') updateThemeConfig(config);
+});
+
+socket.on('lists_changed', (lists) => {
+    if (typeof updateLists === 'function') updateLists(lists);
+});
 
 // --- EMIT FUNCTIONS ---
 function emitStatus(obj) { console.log('emitStatus:', obj); socket.emit('update_status', obj); }

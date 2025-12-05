@@ -62,7 +62,7 @@ h3,
     padding: 1.5rem 3rem;
     --lt-x: 0px;
     --lt-y: 0px;
-    transform: translate(var(--lt-x), calc(150% + var(--lt-y)));
+    transform: var(--lt-base-transform, translate(0, 0)) translate(var(--lt-x), calc(150% + var(--lt-y)));
     transition: transform var(--lt-duration, 0.8s) var(--lt-easing, cubic-bezier(0.16, 1, 0.3, 1)), opacity var(--lt-duration, 0.8s) var(--lt-easing, cubic-bezier(0.16, 1, 0.3, 1));
     opacity: 0;
     display: flex;
@@ -75,7 +75,7 @@ h3,
 }
 
 .lt-bar-container.active {
-    transform: translate(var(--lt-x), var(--lt-y));
+    transform: var(--lt-base-transform, translate(0, 0)) translate(var(--lt-x), var(--lt-y));
     opacity: 1;
 }
 
