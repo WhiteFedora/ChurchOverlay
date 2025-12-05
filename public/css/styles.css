@@ -179,6 +179,18 @@ h3,
     display: inline-block;
 }
 
+#el-start-message {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    display: block !important;
+}
+
+#el-start-message.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
 .countdown-display {
     font-family: 'Cinzel', serif;
     font-weight: 700;

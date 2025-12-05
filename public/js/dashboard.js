@@ -80,6 +80,7 @@ function updateStatus(status) {
     }
     if (timerSection) {
         const btn = document.getElementById('btn-toggle-timer');
+        const btnMsg = document.getElementById('btn-toggle-msg');
         if (status.timer_visible) {
             timerSection.classList.add('timer-active');
             if (btn) btn.innerText = 'HIDE TIMER';
@@ -87,7 +88,29 @@ function updateStatus(status) {
             timerSection.classList.remove('timer-active');
             if (btn) btn.innerText = 'SHOW TIMER';
         }
+
+        if (status.timer_show_start_message) {
+            if (btnMsg) {
+                btnMsg.innerText = 'HIDE START MESSAGE';
+                btnMsg.classList.add('bg-blue-200');
+            }
+        } else {
+            if (btnMsg) {
+                btnMsg.innerText = 'SHOW START MESSAGE';
+                btnMsg.classList.remove('bg-blue-200');
+            }
+        }
     }
+
+    // Update Slates Grid Active State
+    const slateBoxes = document.querySelectorAll('#slates-grid .preview-box');
+    slateBoxes.forEach((box, index) => {
+        if (status.slate_active && status.active_slate_index === index) {
+            box.classList.add('active');
+        } else {
+            box.classList.remove('active');
+        }
+    });
 }
 function updateTransitions() {
     const ltDur = parseFloat(document.getElementById('lt-duration').value);
@@ -109,9 +132,10 @@ function toggleLowerThird() {
 function toggleTimer() {
     console.log('toggleTimer called');
     const isVisible = localStatus.timer_visible;
-    console.log('isVisible:', isVisible);
-    const showStart = document.getElementById('timer-show-start').checked;
-    const clockOffset = parseInt(document.getElementById('timer-clock-offset').value);
-    const textOffset = parseInt(document.getElementById('timer-text-offset').value);
-    emitStatus({ timer_visible: !isVisible, timer_show_start_message: showStart, timer_clock_offset: clockOffset, timer_text_offset: textOffset });
+    emitStatus({ timer_visible: !isVisible });
+}
+
+function toggleStartMessage() {
+    const isVisible = localStatus.timer_show_start_message;
+    emitStatus({ timer_show_start_message: !isVisible });
 }

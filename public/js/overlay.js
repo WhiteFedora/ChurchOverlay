@@ -21,7 +21,7 @@ function updateOverlay(status) {
     const lt = document.getElementById('comp-lt');
     document.getElementById('el-name').innerText = status.lt_name || "";
     document.getElementById('el-role').innerText = status.lt_role || "";
-    
+
     // Position
     const offX = status.lt_offset_x || 0;
     const offY = status.lt_offset_y || 0;
@@ -33,7 +33,7 @@ function updateOverlay(status) {
     const slate = document.getElementById('comp-slate');
     const img = document.getElementById('slate-img-bg');
     const txt = document.getElementById('slate-content');
-    if(status.slate_type === 'image') {
+    if (status.slate_type === 'image') {
         img.src = status.slate_src; img.classList.remove('hidden'); txt.classList.add('hidden');
     } else {
         img.classList.add('hidden'); txt.classList.remove('hidden');
@@ -44,28 +44,19 @@ function updateOverlay(status) {
 
     // Timer
     const clock = document.getElementById('comp-clock');
-    const startTimeEl = document.getElementById('el-start-time');
     const startMessageEl = document.getElementById('el-start-message');
     status.timer_visible ? clock.classList.add('active') : clock.classList.remove('active');
     document.documentElement.style.setProperty('--timer-clock-top', `${40 + (status.timer_clock_offset || 0)}px`);
     timerTarget = status.timer_target;
-    if (timerTarget && status.timer_show_start_message) {
-        const startDate = new Date(timerTarget);
-        const startStr = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        startMessageEl.innerText = `Service starts at ${startStr}`;
-        startMessageEl.classList.remove('hidden');
-        startMessageEl.style.top = `${60 + (status.timer_text_offset || 0)}px`;
-    } else {
-        startMessageEl.classList.add('hidden');
-    }
     if (timerTarget) {
         const startDate = new Date(timerTarget);
         const startStr = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        startTimeEl.innerText = `Start: ${startStr}`;
-        startTimeEl.classList.remove('hidden');
-        document.getElementById('el-countdown').classList.remove('hidden');
+        startMessageEl.innerText = `Service starts at ${startStr}`;
+    }
+
+    if (timerTarget && status.timer_show_start_message) {
+        startMessageEl.classList.add('active');
     } else {
-        startTimeEl.classList.add('hidden');
-        document.getElementById('el-countdown').classList.add('hidden');
+        startMessageEl.classList.remove('active');
     }
 }
