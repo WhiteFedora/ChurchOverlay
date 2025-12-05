@@ -4,8 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anglican Broadcast Suite (LAN)</title>
+    <title>Anglican Streaming Graphics Suite (LAN)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <script>
+        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        initTheme();
+    </script>
     <script src="/socket.io/socket.io.js"></script> <!-- Auto-served by Node -->
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&display=swap"
@@ -13,24 +29,32 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
-<body class="bg-slate-100 text-slate-800">
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
 
     <!-- ================= DASHBOARD ================= -->
     <div id="dashboard" class="min-h-screen p-6">
         <div class="max-w-7xl mx-auto grid grid-cols-12 gap-6">
             <!-- Header -->
             <div
-                class="col-span-12 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                class="col-span-12 flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-800">Anglican Broadcast Suite</h1>
+                    <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Anglican Stream Graphics Suite
+                    </h1>
                     <p class="text-xs text-slate-500 uppercase font-bold">Local Network Controller</p>
                 </div>
                 <div class="flex gap-3">
+                    <select id="theme-selector" onchange="setTheme(this.value)"
+                        class="px-2 border rounded font-bold text-sm bg-slate-50 dark:bg-slate-700 dark:border-slate-600 dark:text-white mr-2">
+                        <option value="system">System</option>
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
                     <div id="auth-status"
                         class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-bold flex items-center">
                         Connecting...</div>
                     <button onclick="copyLink()"
-                        class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded font-bold text-sm">Copy Link</button>
+                        class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded font-bold text-sm">Copy
+                        Link</button>
                     <button onclick="launchOverlay()"
                         class="px-4 py-2 bg-blue-900 text-white rounded font-bold text-sm shadow">Launch
                         Overlay</button>
@@ -40,28 +64,36 @@
             <!-- Left: Controls -->
             <div class="col-span-12 lg:col-span-4 space-y-6">
                 <!-- Lower Third -->
-                <div id="lt-section" class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                <div id="lt-section"
+                    class="bg-white dark:bg-slate-800 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-bold text-blue-900">Lower Third</h2>
-                        <button onclick="openListsModal()" class="text-xs text-blue-600 font-bold underline">Manage
+                        <h2 class="text-lg font-bold text-blue-900 dark:text-blue-300">Lower Third</h2>
+                        <button onclick="openListsModal()"
+                            class="text-xs text-blue-600 dark:text-blue-400 font-bold underline">Manage
                             Lists</button>
                     </div>
                     <div class="space-y-4">
-                        <select id="sel-person" class="w-full p-2 border rounded bg-slate-50"></select>
-                        <select id="sel-task" class="w-full p-2 border rounded bg-slate-50"></select>
-                        <div class="flex items-center justify-between bg-slate-50 p-2 rounded border">
+                        <select id="sel-person"
+                            class="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700 dark:border-slate-600 dark:text-white"></select>
+                        <select id="sel-task"
+                            class="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700 dark:border-slate-600 dark:text-white"></select>
+                        <div
+                            class="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-2 rounded border dark:border-slate-600">
                             <div class="flex gap-3">
-                                <label class="flex items-center gap-1 text-xs font-bold text-slate-600 cursor-pointer">
+                                <label
+                                    class="flex items-center gap-1 text-xs font-bold text-slate-600 dark:text-slate-300 cursor-pointer">
                                     <input type="radio" name="lt-mode" value="forever" onchange="toggleLtMode()">
                                     Forever
                                 </label>
-                                <label class="flex items-center gap-1 text-xs font-bold text-slate-600 cursor-pointer">
+                                <label
+                                    class="flex items-center gap-1 text-xs font-bold text-slate-600 dark:text-slate-300 cursor-pointer">
                                     <input type="radio" name="lt-mode" value="timeout" checked
                                         onchange="toggleLtMode()">
                                     Timeout
                                 </label>
                             </div>
-                            <input id="inp-lt-timeout" type="number" class="w-16 border rounded p-1 text-xs text-center"
+                            <input id="inp-lt-timeout" type="number"
+                                class="w-16 border rounded p-1 text-xs text-center dark:bg-slate-600 dark:border-slate-500"
                                 value="10">
                         </div>
                         <button id="btn-toggle-lt" onclick="toggleLowerThird()"
@@ -70,17 +102,19 @@
                 </div>
 
                 <!-- Timer -->
-                <div id="timer-section" class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-bold text-blue-900 mb-4">Timer</h2>
+                <div id="timer-section"
+                    class="bg-white dark:bg-slate-800 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <h2 class="text-lg font-bold text-blue-900 dark:text-blue-300 mb-4">Timer</h2>
                     <div class="space-y-4">
                         <div class="flex gap-2">
                             <input type="time" id="inp-target-time" value="09:30"
-                                class="flex-1 p-2 border rounded font-mono">
+                                class="flex-1 p-2 border rounded font-mono dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                             <button onclick="setCountdown()"
-                                class="bg-blue-100 text-blue-800 px-3 rounded font-bold text-xs">SET</button>
+                                class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 px-3 rounded font-bold text-xs">SET</button>
                         </div>
                         <button id="btn-toggle-msg" onclick="toggleStartMessage()"
-                            class="w-full bg-blue-100 text-blue-900 py-2 rounded font-bold mb-2">SHOW START
+                            class="w-full bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 py-2 rounded font-bold mb-2">SHOW
+                            START
                             MESSAGE</button>
                         <button id="btn-toggle-timer" onclick="toggleTimer()"
                             class="w-full bg-blue-900 text-white py-3 rounded font-bold">SHOW TIMER</button>
@@ -91,28 +125,31 @@
             <!-- Right: Settings and Slates -->
             <div class="col-span-12 lg:col-span-8 space-y-6">
                 <!-- Transition Settings -->
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-bold text-blue-900 mb-4">Transition Settings</h2>
+                <div
+                    class="bg-white dark:bg-slate-800 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <h2 class="text-lg font-bold text-blue-900 dark:text-blue-300 mb-4">Transition Settings</h2>
                     <div class="space-y-2">
                         <label>Lower Third Duration (s): <input id="lt-duration" type="number" step="0.1" value="0.8"
-                                class="border rounded p-1"></label>
+                                class="border rounded p-1 dark:bg-slate-700 dark:border-slate-600"></label>
                         <label>Slate Duration (s): <input id="slate-duration" type="number" step="0.1" value="0.5"
-                                class="border rounded p-1"></label>
+                                class="border rounded p-1 dark:bg-slate-700 dark:border-slate-600"></label>
                         <button onclick="updateTransitions()"
                             class="bg-blue-900 text-white py-2 px-4 rounded">Apply</button>
                     </div>
                 </div>
 
                 <!-- Full Screen Slates -->
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 h-full">
+                <div
+                    class="bg-white dark:bg-slate-800 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 h-full">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-lg font-bold text-blue-900">Full Screen Slates</h2>
+                        <h2 class="text-lg font-bold text-blue-900 dark:text-blue-300">Full Screen Slates</h2>
                         <div class="flex gap-2">
                             <button onclick="openAddSlateModal()"
-                                class="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded font-bold">+ Add
+                                class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200 px-3 py-1 rounded font-bold">+
+                                Add
                                 Slate</button>
                             <button onclick="emitStatus({slate_active: false})"
-                                class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded font-bold">Clear
+                                class="text-xs bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-200 px-3 py-1 rounded font-bold">Clear
                                 Screen</button>
                         </div>
                     </div>
@@ -150,49 +187,54 @@
     <!-- ================= MODALS ================= -->
     <!-- Lists Modal -->
     <div id="modal-lists" class="modal hidden">
-        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl m-4">
-            <h3 class="text-xl font-bold mb-4 font-serif text-blue-900">Manage Lists</h3>
+        <div class="bg-white dark:bg-slate-800 dark:text-slate-100 rounded-xl shadow-2xl p-6 w-full max-w-2xl m-4">
+            <h3 class="text-xl font-bold mb-4 font-serif text-blue-900 dark:text-blue-300">Manage Lists</h3>
             <div class="grid grid-cols-2 gap-6 h-64">
                 <div class="flex flex-col h-full">
                     <div class="flex justify-between items-center mb-2">
                         <h4 class="text-xs font-bold uppercase">People</h4>
                         <button onclick="triggerCsv('people')"
-                            class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-0.5 rounded text-slate-600 font-bold transition-colors">Import
+                            class="text-[10px] bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 px-2 py-0.5 rounded text-slate-600 dark:text-slate-200 font-bold transition-colors">Import
                             CSV</button>
                         <input type="file" id="csv-people" class="hidden" accept=".csv"
                             onchange="processCsvUpload('people', this)">
                     </div>
                     <ul id="list-people"
-                        class="flex-1 overflow-y-auto border rounded p-2 text-sm bg-slate-50 space-y-1 mb-2"></ul>
+                        class="flex-1 overflow-y-auto border rounded p-2 text-sm bg-slate-50 dark:bg-slate-700 dark:border-slate-600 space-y-1 mb-2">
+                    </ul>
                     <div class="flex gap-2"><input id="new-person" placeholder="Name"
-                            class="flex-1 border p-2 rounded text-sm"><button onclick="addItem('people')"
-                            class="bg-blue-600 text-white px-3 rounded font-bold">+</button></div>
+                            class="flex-1 border p-2 rounded text-sm dark:bg-slate-700 dark:border-slate-600"><button
+                            onclick="addItem('people')" class="bg-blue-600 text-white px-3 rounded font-bold">+</button>
+                    </div>
                 </div>
                 <div class="flex flex-col h-full">
                     <div class="flex justify-between items-center mb-2">
                         <h4 class="text-xs font-bold uppercase">Tasks</h4>
                         <button onclick="triggerCsv('tasks')"
-                            class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-0.5 rounded text-slate-600 font-bold transition-colors">Import
+                            class="text-[10px] bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 px-2 py-0.5 rounded text-slate-600 dark:text-slate-200 font-bold transition-colors">Import
                             CSV</button>
                         <input type="file" id="csv-tasks" class="hidden" accept=".csv"
                             onchange="processCsvUpload('tasks', this)">
                     </div>
                     <ul id="list-tasks"
-                        class="flex-1 overflow-y-auto border rounded p-2 text-sm bg-slate-50 space-y-1 mb-2"></ul>
+                        class="flex-1 overflow-y-auto border rounded p-2 text-sm bg-slate-50 dark:bg-slate-700 dark:border-slate-600 space-y-1 mb-2">
+                    </ul>
                     <div class="flex gap-2"><input id="new-task" placeholder="Task"
-                            class="flex-1 border p-2 rounded text-sm"><button onclick="addItem('tasks')"
-                            class="bg-blue-600 text-white px-3 rounded font-bold">+</button></div>
+                            class="flex-1 border p-2 rounded text-sm dark:bg-slate-700 dark:border-slate-600"><button
+                            onclick="addItem('tasks')" class="bg-blue-600 text-white px-3 rounded font-bold">+</button>
+                    </div>
                 </div>
             </div>
             <div class="mt-6 flex justify-end"><button onclick="closeModal('modal-lists')"
-                    class="bg-slate-200 px-6 py-2 rounded font-bold">Done</button></div>
+                    class="bg-slate-200 dark:bg-slate-600 dark:text-white px-6 py-2 rounded font-bold">Done</button>
+            </div>
         </div>
     </div>
 
     <!-- Add Slate Modal -->
     <div id="modal-add-slate" class="modal hidden">
-        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md m-4">
-            <h3 class="text-xl font-bold mb-4 font-serif text-blue-900">Add New Slate</h3>
+        <div class="bg-white dark:bg-slate-800 dark:text-slate-100 rounded-xl shadow-2xl p-6 w-full max-w-md m-4">
+            <h3 class="text-xl font-bold mb-4 font-serif text-blue-900 dark:text-blue-300">Add New Slate</h3>
             <div class="mb-4 flex gap-4">
                 <label class="flex items-center gap-2"><input type="radio" name="stype" value="text" checked
                         onchange="toggleSlateInputs()"> <b>Text</b></label>
@@ -200,16 +242,20 @@
                         onchange="toggleSlateInputs()"> <b>Image</b></label>
             </div>
             <div id="inputs-text">
-                <input id="new-stitle" class="w-full border p-2 rounded mb-2" placeholder="Title">
-                <input id="new-ssub" class="w-full border p-2 rounded" placeholder="Subtitle">
+                <input id="new-stitle" class="w-full border p-2 rounded mb-2 dark:bg-slate-700 dark:border-slate-600"
+                    placeholder="Title">
+                <input id="new-ssub" class="w-full border p-2 rounded dark:bg-slate-700 dark:border-slate-600"
+                    placeholder="Subtitle">
             </div>
             <div id="inputs-image" class="hidden">
-                <input type="file" id="new-sfile" accept="image/*" class="w-full border p-2 rounded mb-2">
-                <input id="new-slabel" class="w-full border p-2 rounded" placeholder="Label (e.g. Poster)">
+                <input type="file" id="new-sfile" accept="image/*"
+                    class="w-full border p-2 rounded mb-2 dark:bg-slate-700 dark:border-slate-600">
+                <input id="new-slabel" class="w-full border p-2 rounded dark:bg-slate-700 dark:border-slate-600"
+                    placeholder="Label (e.g. Poster)">
             </div>
             <div class="mt-6 flex justify-end gap-2">
                 <button onclick="closeModal('modal-add-slate')"
-                    class="bg-slate-200 px-4 py-2 rounded font-bold">Cancel</button>
+                    class="bg-slate-200 dark:bg-slate-600 dark:text-white px-4 py-2 rounded font-bold">Cancel</button>
                 <button onclick="saveNewSlate()"
                     class="bg-blue-600 text-white px-6 py-2 rounded font-bold">Save</button>
             </div>

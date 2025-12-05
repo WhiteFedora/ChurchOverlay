@@ -20,7 +20,7 @@ function updateLists(lists) {
         // Manage Lists UI
         // Manage Lists UI
         const genListHtml = (items, type) => items.map((item, i) => `
-            <li class="flex justify-between items-center group p-1 hover:bg-slate-100 rounded transition-colors">
+            <li class="flex justify-between items-center group p-1 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
                 <span class="truncate">${item}</span>
                 <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onclick="editItem('${type}', ${i})" class="text-slate-400 hover:text-blue-600 font-bold" title="Edit">✎</button>
@@ -36,7 +36,7 @@ function updateLists(lists) {
         console.log('grid:', grid, 'slates:', lists.slates);
         grid.innerHTML = lists.slates.map((s, i) => {
             const isActive = localStatus.active_slate_index === i;
-            const content = s.type === 'image' ? `<img src="${s.src}">` : `<div class="text-center p-2"><b class="text-white text-lg font-serif">${s.title}</b><div class="text-yellow-500 text-xs">${s.sub}</div></div>`;
+            const content = s.type === 'image' ? `<img src="${s.src}">` : `<div class="text-center p-2"><b class="text-slate-900 dark:text-white text-lg font-serif">${s.title}</b><div class="text-yellow-600 dark:text-yellow-500 text-xs">${s.sub}</div></div>`;
             return `
             <div class="group relative">
                 <div onclick="emitSlate(${i})" class="preview-box ${isActive ? 'active' : ''}">${content}
@@ -46,7 +46,7 @@ function updateLists(lists) {
                         ${i < lists.slates.length - 1 ? `<button onclick="moveSlate(${i},1);event.stopPropagation()" class="action-btn">→</button>` : ''}
                     </div>
                 </div>
-                <p class="text-center text-xs font-bold mt-2 text-slate-500 group-hover:text-blue-600">${s.type === 'image' ? s.label : s.title}</p>
+                <p class="text-center text-xs font-bold mt-2 text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400">${s.type === 'image' ? s.label : s.title}</p>
             </div>`;
         }).join('');
     }

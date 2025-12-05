@@ -57,6 +57,11 @@ function remItem(type, idx) {
     localLists[type].splice(idx, 1);
     emitLists(localLists);
 }
+function moveListItem(type, index, direction) {
+    if (index + direction < 0 || index + direction >= localLists[type].length) return;
+    [localLists[type][index], localLists[type][index + direction]] = [localLists[type][index + direction], localLists[type][index]];
+    emitLists(localLists);
+}
 function openAddSlateModal() { document.getElementById('modal-add-slate').classList.remove('hidden'); toggleSlateInputs(); }
 function toggleSlateInputs() {
     const type = document.querySelector('input[name="stype"]:checked').value;
@@ -137,3 +142,45 @@ function launchOverlay() {
     if (!win) alert("Popup blocked. Please use Copy Link.");
 }
 function toggleFS() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); }
+
+// --- THEME MANAGEMENT ---
+function setTheme(theme) {
+    if (theme === 'system') {
+        localStorage.removeItem('theme');
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    } else {
+        localStorage.theme = theme;
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }
+}
+
+// Initialize Dropdown State
+window.addEventListener('DOMContentLoaded', () => {
+    const sel = document.getElementById('theme-selector');
+    if (sel) {
+        if ('theme' in localStorage) {
+            sel.value = localStorage.theme;
+        } else {
+            sel.value = 'system';
+        }
+    }
+});
+
+// Listener for system changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (!('theme' in localStorage)) {
+        if (e.matches) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }
+});
