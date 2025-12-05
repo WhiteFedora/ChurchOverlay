@@ -1,0 +1,13 @@
+{
+  "name": "church-overlay-system",
+  "version": "1.0.0",
+  "description": "Local LAN Church Overlay System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}
