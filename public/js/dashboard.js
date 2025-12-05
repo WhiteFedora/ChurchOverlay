@@ -118,14 +118,52 @@ function updateTransitions() {
     emitStatus({ lt_transition_duration: ltDur, slate_transition_duration: slateDur });
 }
 
+// Timeout timer
+var ltTimeoutTimer = null;
+
+function toggleLtMode() {
+    const isTimeout = document.querySelector('input[name="lt-mode"][value="timeout"]').checked;
+    const inp = document.getElementById('inp-lt-timeout');
+    if (isTimeout) {
+        inp.classList.remove('hidden');
+    } else {
+        inp.classList.add('hidden');
+        // If switched to Forever while active, clear any pending timer
+        if (ltTimeoutTimer) {
+            clearTimeout(ltTimeoutTimer);
+            ltTimeoutTimer = null;
+            console.log('Switched to Forever - timer cancelled');
+        }
+    }
+}
+
 function toggleLowerThird() {
     console.log('toggleLowerThird called');
     const isActive = localStatus.lt_active;
     console.log('isActive:', isActive);
+
+    // Always clear existing timer on toggle
+    if (ltTimeoutTimer) {
+        clearTimeout(ltTimeoutTimer);
+        ltTimeoutTimer = null;
+    }
+
     if (isActive) {
         emitStatus({ lt_active: false });
     } else {
         emitStatus({ lt_active: true, lt_name: getVal('sel-person'), lt_role: getVal('sel-task') });
+
+        // Handle Timeout
+        const isTimeout = document.querySelector('input[name="lt-mode"][value="timeout"]').checked;
+        if (isTimeout) {
+            const sec = parseFloat(document.getElementById('inp-lt-timeout').value) || 8;
+            console.log(`Lower Third will auto-hide in ${sec} seconds`);
+            ltTimeoutTimer = setTimeout(() => {
+                console.log('Timeout fired - hiding Lower Third');
+                emitStatus({ lt_active: false });
+                ltTimeoutTimer = null;
+            }, sec * 1000);
+        }
     }
 }
 

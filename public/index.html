@@ -49,6 +49,21 @@
                     <div class="space-y-4">
                         <select id="sel-person" class="w-full p-2 border rounded bg-slate-50"></select>
                         <select id="sel-task" class="w-full p-2 border rounded bg-slate-50"></select>
+                        <div class="flex items-center justify-between bg-slate-50 p-2 rounded border">
+                            <div class="flex gap-3">
+                                <label class="flex items-center gap-1 text-xs font-bold text-slate-600 cursor-pointer">
+                                    <input type="radio" name="lt-mode" value="forever" checked
+                                        onchange="toggleLtMode()">
+                                    Forever
+                                </label>
+                                <label class="flex items-center gap-1 text-xs font-bold text-slate-600 cursor-pointer">
+                                    <input type="radio" name="lt-mode" value="timeout" onchange="toggleLtMode()">
+                                    Timeout
+                                </label>
+                            </div>
+                            <input id="inp-lt-timeout" type="number"
+                                class="w-16 border rounded p-1 text-xs text-center hidden" value="8">
+                        </div>
                         <button id="btn-toggle-lt" onclick="toggleLowerThird()"
                             class="w-full bg-blue-900 text-white py-3 rounded font-bold">SHOW LOWER THIRD</button>
                     </div>
