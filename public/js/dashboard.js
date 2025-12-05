@@ -21,10 +21,12 @@ function updateLists(lists) {
         // Manage Lists UI
         const genListHtml = (items, type) => items.map((item, i) => `
             <li class="flex justify-between items-center group p-1 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
-                <span class="truncate">${item}</span>
-                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onclick="editItem('${type}', ${i})" class="text-slate-400 hover:text-blue-600 font-bold" title="Edit">✎</button>
-                    <button onclick="remItem('${type}', ${i})" class="text-slate-400 hover:text-red-500 font-bold" title="Delete">×</button>
+                <span class="truncate flex-1">${item}</span>
+                <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity items-center">
+                    ${i > 0 ? `<button onclick="moveListItem('${type}', ${i}, -1)" class="text-slate-400 hover:text-blue-600 font-bold px-1" title="Move Up">↑</button>` : '<span class="w-6"></span>'}
+                    ${i < items.length - 1 ? `<button onclick="moveListItem('${type}', ${i}, 1)" class="text-slate-400 hover:text-blue-600 font-bold px-1" title="Move Down">↓</button>` : '<span class="w-6"></span>'}
+                    <button onclick="editItem('${type}', ${i})" class="text-slate-400 hover:text-blue-600 font-bold px-1" title="Edit">✎</button>
+                    <button onclick="remItem('${type}', ${i})" class="text-slate-400 hover:text-red-500 font-bold px-1" title="Delete">×</button>
                 </div>
             </li>`).join('');
 
