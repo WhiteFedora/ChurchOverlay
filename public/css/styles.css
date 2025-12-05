@@ -26,6 +26,7 @@ h3,
 /* --- OVERLAY MODE --- */
 .overlay-mode {
     background-color: transparent;
+    cursor: none;
 }
 
 .overlay-mode.greenscreen {

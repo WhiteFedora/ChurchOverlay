@@ -13,4 +13,11 @@ setInterval(() => {
 // Check Mode
 if (window.location.search.includes('mode=overlay')) {
     document.body.classList.add('overlay-mode', 'greenscreen');
+    // Attempt to maximize window (browser restrictions apply)
+    try {
+        window.moveTo(0, 0);
+        window.resizeTo(screen.availWidth, screen.availHeight);
+    } catch (e) {
+        console.log("Auto-resize blocked by browser");
+    }
 }
