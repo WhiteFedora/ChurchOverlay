@@ -21,6 +21,12 @@ function updateOverlay(status) {
     const lt = document.getElementById('comp-lt');
     document.getElementById('el-name').innerText = status.lt_name || "";
     document.getElementById('el-role').innerText = status.lt_role || "";
+    
+    // Position
+    const offX = status.lt_offset_x || 0;
+    const offY = status.lt_offset_y || 0;
+    lt.style.setProperty('--lt-x', `${offX}vw`);
+    lt.style.setProperty('--lt-y', `${-offY}vh`);
     status.lt_active ? lt.classList.add('active') : lt.classList.remove('active');
 
     // Slates

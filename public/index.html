@@ -1,29 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anglican Broadcast Suite (LAN)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script> <!-- Auto-served by Node -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body class="bg-slate-100 text-slate-800">
 
     <!-- ================= DASHBOARD ================= -->
     <div id="dashboard" class="min-h-screen p-6">
         <div class="max-w-7xl mx-auto grid grid-cols-12 gap-6">
             <!-- Header -->
-            <div class="col-span-12 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+            <div
+                class="col-span-12 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-800">Anglican Broadcast Suite</h1>
                     <p class="text-xs text-slate-500 uppercase font-bold">Local Network Controller</p>
                 </div>
                 <div class="flex gap-3">
-                    <div id="auth-status" class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-bold flex items-center">Connecting...</div>
-                    <button onclick="copyLink()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded font-bold text-sm">Copy Link</button>
-                    <button onclick="launchOverlay()" class="px-4 py-2 bg-blue-900 text-white rounded font-bold text-sm shadow">Launch Overlay</button>
+                    <div id="auth-status"
+                        class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-bold flex items-center">
+                        Connecting...</div>
+                    <button onclick="copyLink()"
+                        class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded font-bold text-sm">Copy Link</button>
+                    <button onclick="launchOverlay()"
+                        class="px-4 py-2 bg-blue-900 text-white rounded font-bold text-sm shadow">Launch
+                        Overlay</button>
                 </div>
             </div>
 
@@ -33,12 +43,14 @@
                 <div id="lt-section" class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-lg font-bold text-blue-900">Lower Third</h2>
-                        <button onclick="openListsModal()" class="text-xs text-blue-600 font-bold underline">Edit Lists</button>
+                        <button onclick="openListsModal()" class="text-xs text-blue-600 font-bold underline">Manage
+                            Lists</button>
                     </div>
                     <div class="space-y-4">
                         <select id="sel-person" class="w-full p-2 border rounded bg-slate-50"></select>
                         <select id="sel-task" class="w-full p-2 border rounded bg-slate-50"></select>
-                        <button onclick="toggleLowerThird()" class="w-full bg-blue-900 text-white py-3 rounded font-bold">SHOW LOWER THIRD</button>
+                        <button id="btn-toggle-lt" onclick="toggleLowerThird()"
+                            class="w-full bg-blue-900 text-white py-3 rounded font-bold">SHOW LOWER THIRD</button>
                     </div>
                 </div>
 
@@ -47,15 +59,20 @@
                     <h2 class="text-lg font-bold text-blue-900 mb-4">Timer</h2>
                     <div class="space-y-4">
                         <div class="flex gap-2">
-                            <input type="time" id="inp-target-time" value="09:30" class="flex-1 p-2 border rounded font-mono">
-                            <button onclick="setCountdown()" class="bg-blue-100 text-blue-800 px-3 rounded font-bold text-xs">SET</button>
+                            <input type="time" id="inp-target-time" value="09:30"
+                                class="flex-1 p-2 border rounded font-mono">
+                            <button onclick="setCountdown()"
+                                class="bg-blue-100 text-blue-800 px-3 rounded font-bold text-xs">SET</button>
                         </div>
                         <label><input type="checkbox" id="timer-show-start"> Show "Service starts at" message</label>
                         <div class="flex gap-2">
-                            <label>Clock Offset: <input id="timer-clock-offset" type="range" min="-200" max="200" value="0" class="w-20"></label>
-                            <label>Text Offset: <input id="timer-text-offset" type="range" min="-200" max="200" value="0" class="w-20"></label>
+                            <label>Clock Offset: <input id="timer-clock-offset" type="range" min="-200" max="200"
+                                    value="0" class="w-20"></label>
+                            <label>Text Offset: <input id="timer-text-offset" type="range" min="-200" max="200"
+                                    value="0" class="w-20"></label>
                         </div>
-                        <button onclick="toggleTimer()" class="w-full bg-blue-900 text-white py-3 rounded font-bold">SHOW TIMER</button>
+                        <button onclick="toggleTimer()"
+                            class="w-full bg-blue-900 text-white py-3 rounded font-bold">SHOW TIMER</button>
                     </div>
                 </div>
             </div>
@@ -66,9 +83,12 @@
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                     <h2 class="text-lg font-bold text-blue-900 mb-4">Transition Settings</h2>
                     <div class="space-y-2">
-                        <label>Lower Third Duration (s): <input id="lt-duration" type="number" step="0.1" value="0.8" class="border rounded p-1"></label>
-                        <label>Slate Duration (s): <input id="slate-duration" type="number" step="0.1" value="0.5" class="border rounded p-1"></label>
-                        <button onclick="updateTransitions()" class="bg-blue-900 text-white py-2 px-4 rounded">Apply</button>
+                        <label>Lower Third Duration (s): <input id="lt-duration" type="number" step="0.1" value="0.8"
+                                class="border rounded p-1"></label>
+                        <label>Slate Duration (s): <input id="slate-duration" type="number" step="0.1" value="0.5"
+                                class="border rounded p-1"></label>
+                        <button onclick="updateTransitions()"
+                            class="bg-blue-900 text-white py-2 px-4 rounded">Apply</button>
                     </div>
                 </div>
 
@@ -77,8 +97,12 @@
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-lg font-bold text-blue-900">Full Screen Slates</h2>
                         <div class="flex gap-2">
-                            <button onclick="openAddSlateModal()" class="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded font-bold">+ Add Slate</button>
-                            <button onclick="emitStatus({slate_active: false})" class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded font-bold">Clear Screen</button>
+                            <button onclick="openAddSlateModal()"
+                                class="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded font-bold">+ Add
+                                Slate</button>
+                            <button onclick="emitStatus({slate_active: false})"
+                                class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded font-bold">Clear
+                                Screen</button>
                         </div>
                     </div>
                     <div id="slates-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
@@ -109,7 +133,9 @@
             <div id="el-name" class="lt-name"></div>
             <div id="el-role" class="lt-role"></div>
         </div>
-        <button onclick="toggleFS()" class="absolute top-4 left-4 bg-white/10 hover:bg-white/30 text-white px-4 py-2 rounded transition opacity-0 hover:opacity-100 pointer-events-auto">Full Screen</button>
+        <button onclick="toggleFS()"
+            class="absolute top-4 left-4 bg-white/10 hover:bg-white/30 text-white px-4 py-2 rounded transition opacity-0 hover:opacity-100 pointer-events-auto">Full
+            Screen</button>
     </div>
 
     <!-- ================= MODALS ================= -->
@@ -120,16 +146,23 @@
             <div class="grid grid-cols-2 gap-6 h-64">
                 <div class="flex flex-col h-full">
                     <h4 class="text-xs font-bold uppercase mb-2">People</h4>
-                    <ul id="list-people" class="flex-1 overflow-y-auto border rounded p-2 text-sm bg-slate-50 space-y-1 mb-2"></ul>
-                    <div class="flex gap-2"><input id="new-person" placeholder="Name" class="flex-1 border p-2 rounded text-sm"><button onclick="addItem('people')" class="bg-blue-600 text-white px-3 rounded font-bold">+</button></div>
+                    <ul id="list-people"
+                        class="flex-1 overflow-y-auto border rounded p-2 text-sm bg-slate-50 space-y-1 mb-2"></ul>
+                    <div class="flex gap-2"><input id="new-person" placeholder="Name"
+                            class="flex-1 border p-2 rounded text-sm"><button onclick="addItem('people')"
+                            class="bg-blue-600 text-white px-3 rounded font-bold">+</button></div>
                 </div>
                 <div class="flex flex-col h-full">
                     <h4 class="text-xs font-bold uppercase mb-2">Tasks</h4>
-                    <ul id="list-tasks" class="flex-1 overflow-y-auto border rounded p-2 text-sm bg-slate-50 space-y-1 mb-2"></ul>
-                    <div class="flex gap-2"><input id="new-task" placeholder="Task" class="flex-1 border p-2 rounded text-sm"><button onclick="addItem('tasks')" class="bg-blue-600 text-white px-3 rounded font-bold">+</button></div>
+                    <ul id="list-tasks"
+                        class="flex-1 overflow-y-auto border rounded p-2 text-sm bg-slate-50 space-y-1 mb-2"></ul>
+                    <div class="flex gap-2"><input id="new-task" placeholder="Task"
+                            class="flex-1 border p-2 rounded text-sm"><button onclick="addItem('tasks')"
+                            class="bg-blue-600 text-white px-3 rounded font-bold">+</button></div>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end"><button onclick="closeModal('modal-lists')" class="bg-slate-200 px-6 py-2 rounded font-bold">Done</button></div>
+            <div class="mt-6 flex justify-end"><button onclick="closeModal('modal-lists')"
+                    class="bg-slate-200 px-6 py-2 rounded font-bold">Done</button></div>
         </div>
     </div>
 
@@ -138,8 +171,10 @@
         <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md m-4">
             <h3 class="text-xl font-bold mb-4 font-serif text-blue-900">Add New Slate</h3>
             <div class="mb-4 flex gap-4">
-                <label class="flex items-center gap-2"><input type="radio" name="stype" value="text" checked onchange="toggleSlateInputs()"> <b>Text</b></label>
-                <label class="flex items-center gap-2"><input type="radio" name="stype" value="image" onchange="toggleSlateInputs()"> <b>Image</b></label>
+                <label class="flex items-center gap-2"><input type="radio" name="stype" value="text" checked
+                        onchange="toggleSlateInputs()"> <b>Text</b></label>
+                <label class="flex items-center gap-2"><input type="radio" name="stype" value="image"
+                        onchange="toggleSlateInputs()"> <b>Image</b></label>
             </div>
             <div id="inputs-text">
                 <input id="new-stitle" class="w-full border p-2 rounded mb-2" placeholder="Title">
@@ -150,8 +185,10 @@
                 <input id="new-slabel" class="w-full border p-2 rounded" placeholder="Label (e.g. Poster)">
             </div>
             <div class="mt-6 flex justify-end gap-2">
-                <button onclick="closeModal('modal-add-slate')" class="bg-slate-200 px-4 py-2 rounded font-bold">Cancel</button>
-                <button onclick="saveNewSlate()" class="bg-blue-600 text-white px-6 py-2 rounded font-bold">Save</button>
+                <button onclick="closeModal('modal-add-slate')"
+                    class="bg-slate-200 px-4 py-2 rounded font-bold">Cancel</button>
+                <button onclick="saveNewSlate()"
+                    class="bg-blue-600 text-white px-6 py-2 rounded font-bold">Save</button>
             </div>
         </div>
     </div>
@@ -163,4 +200,5 @@
     <script src="js/socket.js"></script>
     <script src="js/utils.js"></script>
 </body>
+
 </html>
