@@ -22,6 +22,7 @@ let appState = {
         greenscreen_color: "#00FF00",
         active_slate_index: null,
         lt_transition_duration: 0.8, lt_transition_easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        lt_transition_type: 'slide', lt_transition_direction: 'bottom',
         slate_transition_duration: 0.5, slate_transition_easing: 'ease',
         lt_font: 'Cinzel', lt_text_color: '#f1f5f9', lt_bg_color: '#0f172a', lt_bg_shape: 'gradient', lt_bg_image: null, lt_align: 'space-between', lt_offset: 0,
         timer_show_start_message: false, timer_clock_offset: 0, timer_text_offset: 0, lt_offset: 0

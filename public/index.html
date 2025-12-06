@@ -132,13 +132,53 @@
                 <div
                     class="bg-white dark:bg-slate-800 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
                     <h2 class="text-lg font-bold text-blue-900 dark:text-blue-300 mb-4">Transition Settings</h2>
-                    <div class="space-y-2">
-                        <label>Lower Third Duration (s): <input id="lt-duration" type="number" step="0.1" value="0.8"
-                                class="border rounded p-1 dark:bg-slate-700 dark:border-slate-600"></label>
-                        <label>Slate Duration (s): <input id="slate-duration" type="number" step="0.1" value="0.5"
-                                class="border rounded p-1 dark:bg-slate-700 dark:border-slate-600"></label>
-                        <button onclick="updateTransitions()"
-                            class="bg-blue-900 text-white py-2 px-4 rounded">Apply</button>
+
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">TYPE</label>
+                            <select id="lt-trans-type" onchange="updateTransitions()"
+                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs">
+                                <option value="slide">Slide</option>
+                                <option value="wipe">Wipe</option>
+                                <option value="fade">Fade</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">DIRECTION</label>
+                            <select id="lt-trans-dir" onchange="updateTransitions()"
+                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs">
+                                <option value="bottom">Up (From Bottom)</option>
+                                <option value="top">Down (From Top)</option>
+                                <option value="left">Right (From Left)</option>
+                                <option value="right">Left (From Right)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">EASING</label>
+                            <select id="lt-trans-ease" onchange="updateTransitions()"
+                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs">
+                                <option value="cubic-bezier(0.16, 1, 0.3, 1)">Smooth (Default)</option>
+                                <option value="linear">Linear</option>
+                                <option value="ease-in">Ease In</option>
+                                <option value="ease-out">Ease Out</option>
+                                <option value="ease-in-out">Ease In-Out</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">LT DURATION (s)</label>
+                            <input type="number" id="lt-duration" step="0.1" value="0.8"
+                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs"
+                                onchange="updateTransitions()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">SLATE DUR (s)</label>
+                            <input type="number" id="slate-duration" step="0.1" value="0.5"
+                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs"
+                                onchange="updateTransitions()">
+                        </div>
                     </div>
                 </div>
 

@@ -5,7 +5,6 @@ function updateLists(lists) {
     // Dropdowns
     const pSel = document.getElementById('sel-person');
     const tSel = document.getElementById('sel-task');
-    console.log('pSel:', pSel, 'tSel:', tSel);
     if (pSel) { // Only on dashboard
         const pVal = pSel.value; const tVal = tSel.value;
         pSel.innerHTML = '<option value="">-- Select --</option>' + lists.people.map(p => `<option>${p}</option>`).join('');
@@ -17,7 +16,6 @@ function updateLists(lists) {
         if (tVal) tSel.value = tVal;
         else if (lists.tasks.length > 0) tSel.selectedIndex = 1;
 
-        // Manage Lists UI
         // Manage Lists UI
         const genListHtml = (items, type) => items.map((item, i) => `
             <li class="flex justify-between items-center group p-1 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
@@ -35,7 +33,6 @@ function updateLists(lists) {
 
         // Slates Grid
         const grid = document.getElementById('slates-grid');
-        console.log('grid:', grid, 'slates:', lists.slates);
         grid.innerHTML = lists.slates.map((s, i) => {
             const isActive = localStatus.active_slate_index === i;
             const content = s.type === 'image' ? `<img src="${s.src}">` : `<div class="text-center p-2"><b class="text-slate-900 dark:text-white text-lg font-serif">${s.title}</b><div class="text-yellow-600 dark:text-yellow-500 text-xs">${s.sub}</div></div>`;
@@ -114,6 +111,20 @@ function updateStatus(status) {
         }
     }
 
+    // Update Active States for Transitions UI
+    const elDur = document.getElementById('lt-duration');
+    const elType = document.getElementById('lt-trans-type');
+    const elDir = document.getElementById('lt-trans-dir');
+    const elEase = document.getElementById('lt-trans-ease');
+    const elSlateDur = document.getElementById('slate-duration');
+
+    if (elDur && status.lt_transition_duration) elDur.value = status.lt_transition_duration;
+    if (elType && status.lt_transition_type) elType.value = status.lt_transition_type;
+    if (elDir && status.lt_transition_direction) elDir.value = status.lt_transition_direction;
+    if (elEase && status.lt_transition_easing) elEase.value = status.lt_transition_easing;
+    if (elSlateDur && status.slate_transition_duration) elSlateDur.value = status.slate_transition_duration;
+
+
     // Update Slates Grid Active State
     const slateBoxes = document.querySelectorAll('#slates-grid .preview-box');
     slateBoxes.forEach((box, index) => {
@@ -124,10 +135,21 @@ function updateStatus(status) {
         }
     });
 }
+
 function updateTransitions() {
     const ltDur = parseFloat(document.getElementById('lt-duration').value);
     const slateDur = parseFloat(document.getElementById('slate-duration').value);
-    emitStatus({ lt_transition_duration: ltDur, slate_transition_duration: slateDur });
+    const ltType = document.getElementById('lt-trans-type').value;
+    const ltDir = document.getElementById('lt-trans-dir').value;
+    const ltEase = document.getElementById('lt-trans-ease').value;
+
+    emitStatus({
+        lt_transition_duration: ltDur,
+        slate_transition_duration: slateDur,
+        lt_transition_type: ltType,
+        lt_transition_direction: ltDir,
+        lt_transition_easing: ltEase
+    });
 }
 
 // Timeout timer

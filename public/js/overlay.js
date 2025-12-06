@@ -8,7 +8,16 @@ function updateOverlay(status) {
     // Transition settings
     document.documentElement.style.setProperty('--lt-duration', `${status.lt_transition_duration || 0.8}s`);
     document.documentElement.style.setProperty('--slate-duration', `${status.slate_transition_duration || 0.5}s`);
-    // Easing can be added similarly if needed
+    document.documentElement.style.setProperty('--lt-easing', status.lt_transition_easing || 'cubic-bezier(0.16, 1, 0.3, 1)');
+
+    // Transition Type Attribute
+    const lt = document.getElementById('comp-lt');
+    const transType = status.lt_transition_type || 'slide';
+    const transDir = status.lt_transition_direction || 'bottom';
+
+    // Set data-trans="slide-left" or "fade" etc.
+    if (transType === 'fade') lt.setAttribute('data-trans', 'fade');
+    else lt.setAttribute('data-trans', `${transType}-${transDir}`);
 
     // Lower Third styles
     if (status.lt_bg_image) {
@@ -18,7 +27,7 @@ function updateOverlay(status) {
     }
 
     // Lower Third
-    const lt = document.getElementById('comp-lt');
+    // const lt = document.getElementById('comp-lt'); // Moved up
     document.getElementById('el-name').innerText = status.lt_name || "";
     document.getElementById('el-role').innerText = status.lt_role || "";
 
@@ -144,7 +153,16 @@ function applyTheme(config) {
     nameEl.style.color = config.name.color;
     nameEl.style.fontWeight = config.name.weight;
     nameEl.style.textTransform = config.name.transform;
-    nameEl.style.textShadow = config.name.shadow ? '2px 2px 4px rgba(0,0,0,0.5)' : 'none';
+
+    // New Shadow Logic for Name
+    if (config.name.shadow_active) {
+        const c = hexToRgba2(config.name.shadow_color || '#000000', config.name.shadow_opacity || 0.5);
+        nameEl.style.textShadow = `${config.name.shadow_x || 2}px ${config.name.shadow_y || 2}px ${config.name.shadow_blur || 4}px ${c}`;
+    } else if (config.name.shadow === true) { // Backward comp
+        nameEl.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
+    } else {
+        nameEl.style.textShadow = 'none';
+    }
 
     // Role styles
     roleEl.style.fontFamily = config.role.font;
@@ -152,4 +170,25 @@ function applyTheme(config) {
     roleEl.style.color = config.role.color;
     roleEl.style.fontWeight = config.role.weight;
     roleEl.style.textTransform = config.role.transform;
+
+    // New Shadow Logic for Role
+    if (config.role.shadow_active) {
+        const c = hexToRgba2(config.role.shadow_color || '#000000', config.role.shadow_opacity || 0.5);
+        roleEl.style.textShadow = `${config.role.shadow_x || 2}px ${config.role.shadow_y || 2}px ${config.role.shadow_blur || 4}px ${c}`;
+    } else {
+        roleEl.style.textShadow = 'none';
+    }
+}
+
+function hexToRgba2(hex, alpha) {
+    let c;
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+        c = hex.substring(1).split('');
+        if (c.length == 3) {
+            c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c = '0x' + c.join('');
+        return `rgba(${[(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',')},${alpha})`;
+    }
+    return hex;
 }

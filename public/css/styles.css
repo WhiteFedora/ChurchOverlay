@@ -62,9 +62,14 @@ h3,
     padding: 1.5rem 3rem;
     --lt-x: 0px;
     --lt-y: 0px;
-    transform: var(--lt-base-transform, translate(0, 0)) translate(var(--lt-x), calc(150% + var(--lt-y)));
-    transition: transform var(--lt-duration, 0.8s) var(--lt-easing, cubic-bezier(0.16, 1, 0.3, 1)), opacity var(--lt-duration, 0.8s) var(--lt-easing, cubic-bezier(0.16, 1, 0.3, 1));
+
+    /* Base Transition */
+    transition: transform var(--lt-duration, 0.8s) var(--lt-easing, cubic-bezier(0.16, 1, 0.3, 1)),
+        opacity var(--lt-duration, 0.8s) var(--lt-easing, cubic-bezier(0.16, 1, 0.3, 1)),
+        clip-path var(--lt-duration, 0.8s) var(--lt-easing, cubic-bezier(0.16, 1, 0.3, 1));
+
     opacity: 0;
+    /* Default Hidden State */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -72,11 +77,69 @@ h3,
     bottom: 0;
     left: 10%;
     max-height: 228px;
+
+    /* Default Transform (Slide Bottom) just in case */
+    transform: var(--lt-base-transform, translate(0, 0)) translate(var(--lt-x), calc(150% + var(--lt-y)));
 }
 
-.lt-bar-container.active {
+/* --- TRANSITION VARIANTS (Hidden State) --- */
+
+/* FADE */
+.lt-bar-container[data-trans="fade"] {
+    transform: var(--lt-base-transform, translate(0, 0)) translate(var(--lt-x), var(--lt-y));
+}
+
+/* SLIDE DIRECTIONS */
+.lt-bar-container[data-trans="slide-left"] {
+    transform: var(--lt-base-transform, translate(0, 0)) translate(calc(-120% + var(--lt-x)), var(--lt-y));
+}
+
+.lt-bar-container[data-trans="slide-right"] {
+    transform: var(--lt-base-transform, translate(0, 0)) translate(calc(120% + var(--lt-x)), var(--lt-y));
+}
+
+.lt-bar-container[data-trans="slide-top"] {
+    transform: var(--lt-base-transform, translate(0, 0)) translate(var(--lt-x), calc(-150% + var(--lt-y)));
+}
+
+.lt-bar-container[data-trans="slide-bottom"] {
+    transform: var(--lt-base-transform, translate(0, 0)) translate(var(--lt-x), calc(150% + var(--lt-y)));
+}
+
+/* WIPE DIRECTIONS */
+.lt-bar-container[data-trans^="wipe-"] {
     transform: var(--lt-base-transform, translate(0, 0)) translate(var(--lt-x), var(--lt-y));
     opacity: 1;
+    /* Wipes stay visible but clipped */
+}
+
+.lt-bar-container[data-trans="wipe-left"] {
+    clip-path: inset(0 0 0 100%);
+}
+
+.lt-bar-container[data-trans="wipe-right"] {
+    clip-path: inset(0 100% 0 0);
+}
+
+.lt-bar-container[data-trans="wipe-top"] {
+    clip-path: inset(0 0 100% 0);
+}
+
+.lt-bar-container[data-trans="wipe-bottom"] {
+    clip-path: inset(100% 0 0 0);
+}
+
+
+/* --- ACTIVE STATES (Visible) --- */
+
+.lt-bar-container.active {
+    opacity: 1;
+    transform: var(--lt-base-transform, translate(0, 0)) translate(var(--lt-x), var(--lt-y));
+}
+
+/* Wipe Active Override */
+.lt-bar-container.active[data-trans^="wipe-"] {
+    clip-path: inset(0 0 0 0);
 }
 
 .lt-name {

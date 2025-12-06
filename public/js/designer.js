@@ -19,14 +19,25 @@ const DEFAULT_STATE = {
         color: "#ffffff",
         weight: "700",
         transform: "none",
-        shadow: true
+        shadow_active: true,
+        shadow_color: "#000000",
+        shadow_opacity: 0.5,
+        shadow_x: 2,
+        shadow_y: 2,
+        shadow_blur: 4
     },
     role: {
         font: "Lato",
         size: 24,
         color: "#fbbf24", // church gold
         weight: "300",
-        transform: "uppercase"
+        transform: "uppercase",
+        shadow_active: false,
+        shadow_color: "#000000",
+        shadow_opacity: 0.5,
+        shadow_x: 2,
+        shadow_y: 2,
+        shadow_blur: 4
     },
     layout: {
         align: "center", // flex-start, center, flex-end
@@ -78,7 +89,13 @@ const inputs = {
     name_color: document.getElementById('inp-name-color'),
     name_weight: document.getElementById('inp-name-weight'),
     name_transform: document.getElementById('inp-name-transform'),
-    name_shadow: document.getElementById('inp-name-shadow'),
+
+    name_shadow_active: document.getElementById('chk-name-shadow'),
+    name_shadow_color: document.getElementById('col-name-shadow'),
+    name_shadow_opacity: document.getElementById('num-name-shadow-opacity'),
+    name_shadow_x: document.getElementById('num-name-shadow-x'),
+    name_shadow_y: document.getElementById('num-name-shadow-y'),
+    name_shadow_blur: document.getElementById('num-name-shadow-blur'),
 
     // Role
     role_font: document.getElementById('inp-role-font'),
@@ -87,6 +104,13 @@ const inputs = {
     role_color: document.getElementById('inp-role-color'),
     role_weight: document.getElementById('inp-role-weight'),
     role_transform: document.getElementById('inp-role-transform'),
+
+    role_shadow_active: document.getElementById('chk-role-shadow'),
+    role_shadow_color: document.getElementById('col-role-shadow'),
+    role_shadow_opacity: document.getElementById('num-role-shadow-opacity'),
+    role_shadow_x: document.getElementById('num-role-shadow-x'),
+    role_shadow_y: document.getElementById('num-role-shadow-y'),
+    role_shadow_blur: document.getElementById('num-role-shadow-blur'),
 
     // Layout
     layout_gap: document.getElementById('inp-layout-gap'),
@@ -100,7 +124,16 @@ const inputs = {
 
 socket.on('init_state', (state) => {
     if (state.theme_config) {
-        designState = { ...designState, ...state.theme_config };
+        // Merge allows new props to exist even if not in saved state
+        const mergedName = { ...DEFAULT_STATE.name, ...state.theme_config.name };
+        const mergedRole = { ...DEFAULT_STATE.role, ...state.theme_config.role };
+
+        designState = {
+            ...designState,
+            ...state.theme_config,
+            name: mergedName,
+            role: mergedRole
+        };
         updateUIValues();
         renderPreview();
     }
@@ -135,7 +168,7 @@ function attach(el, key, subkey, type = 'input') {
     el.addEventListener(type, (e) => {
         let val = e.target.value;
         if (e.target.type === 'checkbox') val = e.target.checked;
-        if (e.target.type === 'range') val = parseFloat(val);
+        if (e.target.type === 'range' || e.target.type === 'number') val = parseFloat(val);
 
         designState[key][subkey] = val;
         renderPreview();
@@ -170,7 +203,13 @@ attachDual(inputs.name_size, inputs.num_name_size, 'name', 'size');
 attach(inputs.name_color, 'name', 'color');
 attach(inputs.name_weight, 'name', 'weight', 'change');
 attach(inputs.name_transform, 'name', 'transform', 'change');
-attach(inputs.name_shadow, 'name', 'shadow', 'change');
+
+attach(inputs.name_shadow_active, 'name', 'shadow_active', 'change');
+attach(inputs.name_shadow_color, 'name', 'shadow_color');
+attach(inputs.name_shadow_opacity, 'name', 'shadow_opacity');
+attach(inputs.name_shadow_x, 'name', 'shadow_x');
+attach(inputs.name_shadow_y, 'name', 'shadow_y');
+attach(inputs.name_shadow_blur, 'name', 'shadow_blur');
 
 // Role Inputs
 attach(inputs.role_font, 'role', 'font', 'change');
@@ -178,6 +217,14 @@ attachDual(inputs.role_size, inputs.num_role_size, 'role', 'size');
 attach(inputs.role_color, 'role', 'color');
 attach(inputs.role_weight, 'role', 'weight', 'change');
 attach(inputs.role_transform, 'role', 'transform', 'change');
+
+attach(inputs.role_shadow_active, 'role', 'shadow_active', 'change');
+attach(inputs.role_shadow_color, 'role', 'shadow_color');
+attach(inputs.role_shadow_opacity, 'role', 'shadow_opacity');
+attach(inputs.role_shadow_x, 'role', 'shadow_x');
+attach(inputs.role_shadow_y, 'role', 'shadow_y');
+attach(inputs.role_shadow_blur, 'role', 'shadow_blur');
+
 
 // Layout Inputs
 attachDual(inputs.layout_gap, inputs.num_layout_gap, 'layout', 'gap');
@@ -211,6 +258,19 @@ document.getElementById('btn-save').addEventListener('click', () => {
 
 // --- LOGIC ---
 
+function hexToRgba(hex, alpha) {
+    let c;
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+        c = hex.substring(1).split('');
+        if (c.length == 3) {
+            c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c = '0x' + c.join('');
+        return `rgba(${[(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',')},${alpha})`;
+    }
+    return hex;
+}
+
 function setAlign(align) {
     designState.layout.align = align;
     inputs.layout_align.value = align;
@@ -243,7 +303,17 @@ function updateUIValues() {
     inputs.name_color.value = designState.name.color;
     inputs.name_weight.value = designState.name.weight;
     inputs.name_transform.value = designState.name.transform;
-    inputs.name_shadow.checked = designState.name.shadow;
+
+    inputs.name_shadow_active.checked = designState.name.shadow_active;
+    inputs.name_shadow_color.value = designState.name.shadow_color;
+    inputs.name_shadow_opacity.value = designState.name.shadow_opacity;
+    inputs.name_shadow_x.value = designState.name.shadow_x;
+    inputs.name_shadow_y.value = designState.name.shadow_y;
+    inputs.name_shadow_blur.value = designState.name.shadow_blur;
+
+    // Toggle visibility of shadow controls
+    document.getElementById('group-name-shadow').style.display = designState.name.shadow_active ? 'block' : 'none';
+
 
     // Role
     inputs.role_font.value = designState.role.font;
@@ -252,6 +322,15 @@ function updateUIValues() {
     inputs.role_weight.value = designState.role.weight;
     inputs.role_transform.value = designState.role.transform;
 
+    inputs.role_shadow_active.checked = designState.role.shadow_active;
+    inputs.role_shadow_color.value = designState.role.shadow_color;
+    inputs.role_shadow_opacity.value = designState.role.shadow_opacity;
+    inputs.role_shadow_x.value = designState.role.shadow_x;
+    inputs.role_shadow_y.value = designState.role.shadow_y;
+    inputs.role_shadow_blur.value = designState.role.shadow_blur;
+
+    document.getElementById('group-role-shadow').style.display = designState.role.shadow_active ? 'block' : 'none';
+
     // Layout
     setDual(inputs.layout_gap, inputs.num_layout_gap, designState.layout.gap);
     setDual(inputs.padding_x, inputs.num_padding_x, designState.layout.padding_x);
@@ -259,6 +338,13 @@ function updateUIValues() {
 
 
 function renderPreview() {
+    // Visibility of shadow groups
+    const nameShadowGroup = document.getElementById('group-name-shadow');
+    if (nameShadowGroup) nameShadowGroup.style.display = designState.name.shadow_active ? 'block' : 'none';
+
+    const roleShadowGroup = document.getElementById('group-role-shadow');
+    if (roleShadowGroup) roleShadowGroup.style.display = designState.role.shadow_active ? 'block' : 'none';
+
     // We render on a 960x540 box (1/2 scale of 1080p)
     const scale = 0.5;
 
@@ -273,20 +359,7 @@ function renderPreview() {
 
     // Background
     const hex = designState.box.bg_color;
-    let c;
-    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-        c = hex.substring(1).split('');
-        if (c.length == 3) {
-            c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-        }
-        c = '0x' + c.join('');
-        const r = (c >> 16) & 255;
-        const g = (c >> 8) & 255;
-        const b = c & 255;
-        previewLt.style.backgroundColor = `rgba(${r},${g},${b},${designState.box.opacity})`;
-    } else {
-        previewLt.style.backgroundColor = hex;
-    }
+    previewLt.style.backgroundColor = hexToRgba(hex, designState.box.opacity);
 
     previewLt.style.borderRadius = designState.box.radius + 'px';
     previewLt.style.borderLeft = `${designState.box.border_left * scale}px solid ${designState.box.border_color}`;
@@ -304,7 +377,13 @@ function renderPreview() {
     previewName.style.color = designState.name.color;
     previewName.style.fontWeight = designState.name.weight;
     previewName.style.textTransform = designState.name.transform;
-    previewName.style.textShadow = designState.name.shadow ? '2px 2px 4px rgba(0,0,0,0.5)' : 'none';
+
+    if (designState.name.shadow_active) {
+        const c = hexToRgba(designState.name.shadow_color, designState.name.shadow_opacity);
+        previewName.style.textShadow = `${designState.name.shadow_x}px ${designState.name.shadow_y}px ${designState.name.shadow_blur}px ${c}`;
+    } else {
+        previewName.style.textShadow = 'none';
+    }
 
     // Role Styles
     previewRole.style.fontFamily = designState.role.font;
@@ -312,6 +391,13 @@ function renderPreview() {
     previewRole.style.color = designState.role.color;
     previewRole.style.fontWeight = designState.role.weight;
     previewRole.style.textTransform = designState.role.transform;
+
+    if (designState.role.shadow_active) {
+        const c = hexToRgba(designState.role.shadow_color, designState.role.shadow_opacity);
+        previewRole.style.textShadow = `${designState.role.shadow_x}px ${designState.role.shadow_y}px ${designState.role.shadow_blur}px ${c}`;
+    } else {
+        previewRole.style.textShadow = 'none';
+    }
 }
 
 function showToast(msg) {
