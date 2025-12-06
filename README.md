@@ -60,9 +60,8 @@ Navigate to `http://localhost:3000/designer.html` to customize your graphics.
 
 ## Support My Church
 
-If you find this software useful for your ministry, please consider supporting our church:
+If you find this software useful for your ministry, please consider supporting me to improve my church's live stream
 
-[**Donate Here**](<INSERT_DONATION_LINK_HERE>)
 
 ## License
 
