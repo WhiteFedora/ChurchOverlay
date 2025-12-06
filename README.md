@@ -1,33 +1,69 @@
-# Anglican Broadcast Overlay System
+# Anglican Streaming Graphics Suite
 
-A web-based graphics overlay system for church live streaming, designed for local LAN use without internet dependency.
+A professional, local network-based graphics overlay system designed for church live streams. Control lower thirds, full-screen slates, and service timers from any device on your network.
 
 ## Features
 
-- **Dashboard Control**: Manage lower thirds, full-screen slates, timers, and clocks.
-- **Real-Time Sync**: Instant updates across devices via Socket.IO.
-- **Overlay Mode**: Dedicated display for projectors/screens.
-- **Local Persistence**: Data saved to JSON file, survives restarts.
+*   **Dynamic Lower Thirds**: smooth entrance/exit animations with customizable text for names and roles.
+*   **Transition Control**: Slide, Wipe, or Fade transitions with adjustable speed and easing.
+*   **Visual Designer**: Built-in drag-and-drop designer to customize the look of your lower thirds (colors, fonts, shadows, borders) without touching code.
+*   **Full Screen Slates**: Manage and display welcome screens, sermon titles, and announcements.
+*   **Service Timer**: specialized countdown timer and "Service Starts At" messages.
+*   **Mobile Friendly**: The controller dashboard works on any phone, tablet, or laptop.
+*   **OBS Integration**: Simple Browser Source integration supporting alpha transparency.
 
-## Setup
+## Prerequisites
 
-1. Install Node.js (cross-platform).
-2. Clone or download the project.
-3. Run `npm install` to install dependencies.
-4. Run `npm start` or `node server.js` to start the server on port 3000.
+*   [Node.js](https://nodejs.org/) (Version 16 or higher recommended)
+
+## Installation
+
+1.  Clone this repository or download the ZIP.
+    ```bash
+    git clone https://github.com/yourusername/church-overlay-system.git
+    ```
+2.  Navigate to the project folder.
+    ```bash
+    cd church-overlay-system
+    ```
+3.  Install dependencies.
+    ```bash
+    npm install
+    ```
 
 ## Usage
 
-- Open `http://localhost:3000` on the controller machine.
-- Use "Copy Link" to get the overlay URL, open on display machine with `?mode=overlay`.
-- Or use "Launch Overlay" to pop up the window.
+### Starting the System
+You can start the system in two ways:
+*   **Windows**: Double-click the `start_overlay.bat` file.
+*   **Terminal**: Run `npm start`.
 
-## Architecture
+The server will start on port `3000`.
 
-- **Server**: Node.js + Express + Socket.IO, serves static files and handles real-time communication.
-- **Client**: Vanilla JS, modularized into separate files for maintainability.
-- **Data**: Stored in `church_data.json` locally.
+### Accessing the Controller
+Open a web browser on any device connected to the same network and go to:
+`http://<YOUR_COMPUTER_IP>:3000` 
+*(The console window will display the exact IP addresses you can use)*
 
-## Cross-Platform
+### Setting up in OBS
+1.  Add a new **Browser Source** in OBS.
+2.  Set the URL to: `http://localhost:3000` (or the IP if OBS is on a different machine).
+3.  Set the Width to `1920` and Height to `1080`.
+4.  **Important**: Check "Shutdown source when not visible" and "Refresh browser when scene becomes active" if you notice any sync issues, though usually, they are not needed.
 
-Tested on Windows, compatible with Linux for deployment.
+### Using the Designer
+Navigate to `http://localhost:3000/designer.html` to customize your graphics.
+*   Adjust box size, color, and position.
+*   Change fonts, weights, and text transforms.
+*   Add and customize drop shadows.
+*   Click **Apply Design** to instantly update the live overlay.
+
+## Support My Church
+
+If you find this software useful for your ministry, please consider supporting our church:
+
+[**Donate Here**](<INSERT_DONATION_LINK_HERE>)
+
+## License
+
+This project is licensed under the MIT License.

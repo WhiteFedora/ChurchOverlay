@@ -1,11 +1,22 @@
 {
   "name": "church-overlay-system",
   "version": "1.0.0",
-  "description": "Local LAN Church Overlay System",
+  "description": "A dynamic, browser-based overlay system for church live streams featuring lower thirds, full-screen slates, timers, and a visual designer.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+  "keywords": [
+    "church",
+    "overlay",
+    "obs",
+    "streaming",
+    "lower-third",
+    "graphics",
+    "broadcast"
+  ],
+  "author": "David Hill",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.7.2"
