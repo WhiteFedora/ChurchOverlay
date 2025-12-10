@@ -68,7 +68,37 @@ function setCountdown() {
     const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0).getTime();
     emitStatus({ timer_target: target });
 }
-function getVal(id) { return document.getElementById(id).value; }
+function getVal(id) {
+    const el = document.getElementById(id);
+    return el ? el.value : '';
+}
+
+// --- DASHBOARD CLOCK ---
+let dbClockSize = 24;
+function updateDbClock() {
+    const el = document.getElementById('dashboard-clock');
+    if (!el) return;
+    const now = new Date();
+    el.innerText = now.toLocaleTimeString();
+}
+setInterval(updateDbClock, 1000);
+updateDbClock();
+
+function adjClockSize(delta) {
+    dbClockSize += delta;
+    if (dbClockSize < 12) dbClockSize = 12;
+    if (dbClockSize > 64) dbClockSize = 64;
+    const el = document.getElementById('dashboard-clock');
+    if (el) el.style.fontSize = `${dbClockSize}px`;
+    localStorage.setItem('db_clock_size', dbClockSize);
+}
+
+// Load saved size
+if (localStorage.getItem('db_clock_size')) {
+    dbClockSize = parseInt(localStorage.getItem('db_clock_size'));
+    const el = document.getElementById('dashboard-clock');
+    if (el) el.style.fontSize = `${dbClockSize}px`;
+}
 
 // --- NEW FUNCTIONS ---
 function updateStatus(status) {
@@ -123,6 +153,24 @@ function updateStatus(status) {
     if (elDir && status.lt_transition_direction) elDir.value = status.lt_transition_direction;
     if (elEase && status.lt_transition_easing) elEase.value = status.lt_transition_easing;
     if (elSlateDur && status.slate_transition_duration) elSlateDur.value = status.slate_transition_duration;
+
+    // Timer Styles
+    if (document.getElementById('timer-font')) {
+        if (status.timer_font !== undefined) document.getElementById('timer-font').value = status.timer_font;
+        if (status.timer_text_color) {
+            document.getElementById('timer-text-color').value = status.timer_text_color;
+            document.getElementById('timer-text-hex').value = status.timer_text_color;
+        }
+        if (status.timer_text_opacity !== undefined) document.getElementById('timer-text-opacity').value = status.timer_text_opacity;
+        if (status.timer_bg_color) {
+            document.getElementById('timer-bg-color').value = status.timer_bg_color;
+            document.getElementById('timer-bg-hex').value = status.timer_bg_color;
+        }
+        if (status.timer_bg_opacity !== undefined) document.getElementById('timer-bg-opacity').value = status.timer_bg_opacity;
+        if (status.timer_x !== undefined) document.getElementById('timer-x').value = status.timer_x;
+        if (status.timer_y !== undefined) document.getElementById('timer-y').value = status.timer_y;
+    }
+
 
 
     // Update Slates Grid Active State
@@ -211,3 +259,31 @@ function toggleStartMessage() {
     const isVisible = localStatus.timer_show_start_message;
     emitStatus({ timer_show_start_message: !isVisible });
 }
+
+function updateTimerStyle() {
+    emitStatus({
+        timer_font: getVal('timer-font'),
+        timer_text_color: getVal('timer-text-hex'), // Use hex input value
+        timer_text_opacity: getVal('timer-text-opacity'),
+        timer_bg_color: getVal('timer-bg-hex'), // Use hex input value
+        timer_bg_opacity: getVal('timer-bg-opacity'),
+        timer_x: getVal('timer-x'),
+        timer_y: getVal('timer-y')
+    });
+}
+
+function syncColorInput(picker, textId) {
+    document.getElementById(textId).value = picker.value;
+}
+
+function syncColorPicker(textInfo, pickerId) {
+    const val = textInfo.value;
+    if (/^#[0-9A-F]{6}$/i.test(val)) {
+        document.getElementById(pickerId).value = val;
+    }
+}
+
+function toggleSafeGuides(visible) {
+    emitStatus({ safe_guides_visible: visible });
+}
+

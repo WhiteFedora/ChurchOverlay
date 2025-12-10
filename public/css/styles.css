@@ -13,7 +13,6 @@ body {
 
 body {
     font-family: 'Lato', sans-serif;
-    overflow: hidden;
 }
 
 h1,
@@ -27,6 +26,7 @@ h3,
 .overlay-mode {
     background-color: transparent !important;
     cursor: none;
+    overflow: hidden;
 }
 
 .overlay-mode.greenscreen {
@@ -221,8 +221,9 @@ h3,
 /* Clock */
 .clock-container {
     position: absolute;
-    top: var(--timer-clock-top, 40px);
-    right: 40px;
+    /* top: var(--timer-clock-top, 40px); */
+    /* right: 40px; */
+    position: absolute;
     text-align: right;
     opacity: 0;
     transition: opacity 0.5s;
@@ -343,21 +344,75 @@ h3,
     z-index: 100;
 }
 
-/* Active states */
-.lt-active {
-    border-color: red !important;
+
+/* Safe Area Guides */
+.safe-area-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
 }
 
-.lt-active button {
-    background-color: red !important;
-    color: white !important;
+.safe-area-overlay.visible {
+    display: block;
 }
 
-.timer-active {
-    border-color: red !important;
+.safe-action {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+    border: 2px solid rgba(0, 255, 255, 0.3);
+    box-sizing: border-box;
 }
 
-.timer-active button {
-    background-color: red !important;
-    color: white !important;
+.safe-title {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    border: 2px solid rgba(255, 255, 0, 0.3);
+    box-sizing: border-box;
+}
+
+.safe-crosshair {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.safe-crosshair.vert {
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100%;
+}
+
+/* Grid Overlay */
+.grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 40;
+    display: none;
+    background-size: 50px 50px;
+    background-image:
+        linear-gradient(to right, rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+}
+
+.grid-overlay.visible {
+    display: block;
 }

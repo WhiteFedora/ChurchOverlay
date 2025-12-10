@@ -24,7 +24,7 @@
     </script>
     <script src="/socket.io/socket.io.js"></script> <!-- Auto-served by Node -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&family=Share+Tech+Mono&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -35,28 +35,58 @@
     <div id="dashboard" class="min-h-screen p-6">
         <div class="max-w-7xl mx-auto grid grid-cols-12 gap-6">
             <!-- Header -->
-            <div
-                class="col-span-12 flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <div>
+            <!-- Header -->
+            <div class="col-span-12 flex flex-col md:flex-row gap-4">
+                <!-- Title Box -->
+                <div
+                    class="flex-1 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
                     <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Anglican Stream Graphics Suite
                     </h1>
                     <p class="text-xs text-slate-500 uppercase font-bold">Local Network Controller</p>
                 </div>
-                <div class="flex gap-3">
+
+                <!-- Controls Box -->
+                <div
+                    class="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-end gap-3 flex-wrap">
+                    <!-- Clock -->
+                    <div class="flex items-center gap-2 bg-black/10 dark:bg-white/10 px-3 py-1 rounded-lg mr-2">
+                        <span id="dashboard-clock" class="text-red-600 font-bold"
+                            style="font-family: 'Share Tech Mono', monospace; font-size: 24px; line-height: 1;">00:00:00</span>
+                        <div class="flex flex-col gap-0.5 ml-1">
+                            <button onclick="adjClockSize(2)"
+                                class="text-[8px] bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-500 w-4 h-3 flex items-center justify-center rounded leading-none text-slate-800 dark:text-white">▲</button>
+                            <button onclick="adjClockSize(-2)"
+                                class="text-[8px] bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-500 w-4 h-3 flex items-center justify-center rounded leading-none text-slate-800 dark:text-white">▼</button>
+                        </div>
+                    </div>
+
+                    <!-- Theme -->
                     <select id="theme-selector" onchange="setTheme(this.value)"
-                        class="px-2 border rounded font-bold text-sm bg-slate-50 dark:bg-slate-700 dark:border-slate-600 dark:text-white mr-2">
+                        class="px-2 py-1.5 border rounded font-bold text-sm bg-slate-50 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                         <option value="system">System</option>
                         <option value="light">Light</option>
                         <option value="dark">Dark</option>
                     </select>
+
+                    <!-- Safe Toggle -->
+                    <label
+                        class="flex items-center gap-2 cursor-pointer bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded border border-slate-200 dark:border-slate-600">
+                        <input type="checkbox" onchange="toggleSafeGuides(this.checked)"
+                            class="accent-blue-600 w-4 h-4">
+                        <span class="text-xs font-bold font-mono">SAFE</span>
+                    </label>
+
+                    <!-- Status -->
                     <div id="auth-status"
-                        class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-bold flex items-center">
+                        class="px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded text-xs font-bold flex items-center">
                         Connecting...</div>
+
+                    <!-- Tools -->
                     <button onclick="copyLink()"
-                        class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded font-bold text-sm">Copy
+                        class="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded font-bold text-sm">Copy
                         Link</button>
                     <button onclick="launchOverlay()"
-                        class="px-4 py-2 bg-blue-900 text-white rounded font-bold text-sm shadow">Launch
+                        class="px-4 py-1.5 bg-blue-900 text-white rounded font-bold text-sm shadow hover:bg-blue-800">Launch
                         Overlay</button>
                 </div>
             </div>
@@ -116,6 +146,80 @@
                             <button onclick="setCountdown()"
                                 class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 px-3 rounded font-bold text-xs">SET</button>
                         </div>
+
+                        <!-- Style Controls -->
+                        <details
+                            class="group bg-slate-50 dark:bg-slate-700 rounded border border-slate-200 dark:border-slate-600">
+                            <summary
+                                class="p-2 cursor-pointer text-xs font-bold text-slate-500 dark:text-slate-400 select-none flex justify-between items-center bg-slate-100 dark:bg-slate-900 group-open:bg-slate-200 dark:group-open:bg-slate-800 transition-colors">
+                                <span>APPEARANCE</span>
+                                <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <div class="p-3 space-y-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 mb-1">FONT</label>
+                                    <select id="timer-font" onchange="updateTimerStyle()"
+                                        class="w-full text-xs p-1 border rounded dark:bg-slate-600 dark:border-slate-500 dark:text-white">
+                                        <option value="">Default (Lato)</option>
+                                        <option value="'Cinzel', serif">Cinzel</option>
+                                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                                        <option value="'Playfair Display', serif">Playfair Display</option>
+                                        <option value="'Roboto', sans-serif">Roboto</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-400 mb-1">TEXT
+                                            COLOR</label>
+                                        <div class="flex gap-1 items-center">
+                                            <input type="color" id="timer-text-color" value="#ffffff"
+                                                onchange="syncColorInput(this, 'timer-text-hex'); updateTimerStyle()"
+                                                class="h-6 w-8 p-0 border-0 rounded cursor-pointer">
+                                            <input type="text" id="timer-text-hex" value="#ffffff"
+                                                onchange="syncColorPicker(this, 'timer-text-color'); updateTimerStyle()"
+                                                class="w-16 text-xs p-1 border rounded font-mono dark:bg-slate-600 dark:border-slate-500 dark:text-white">
+                                            <input type="number" id="timer-text-opacity" value="0.8" step="0.1" min="0"
+                                                max="1" onchange="updateTimerStyle()"
+                                                class="w-12 text-xs p-1 border rounded dark:bg-slate-600 dark:border-slate-500 dark:text-white text-center"
+                                                placeholder="Op" title="Opacity">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-400 mb-1">BG COLOR</label>
+                                        <div class="flex gap-1 items-center">
+                                            <input type="color" id="timer-bg-color" value="#000000"
+                                                onchange="syncColorInput(this, 'timer-bg-hex'); updateTimerStyle()"
+                                                class="h-6 w-8 p-0 border-0 rounded cursor-pointer">
+                                            <input type="text" id="timer-bg-hex" value="#000000"
+                                                onchange="syncColorPicker(this, 'timer-bg-color'); updateTimerStyle()"
+                                                class="w-16 text-xs p-1 border rounded font-mono dark:bg-slate-600 dark:border-slate-500 dark:text-white">
+                                            <input type="number" id="timer-bg-opacity" value="0.4" step="0.1" min="0"
+                                                max="1" onchange="updateTimerStyle()"
+                                                class="w-12 text-xs p-1 border rounded dark:bg-slate-600 dark:border-slate-500 dark:text-white text-center"
+                                                placeholder="Op" title="Opacity">
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="col-span-2 grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-200 dark:border-slate-600">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-400 mb-1">X OFFSET
+                                                (%)</label>
+                                            <input type="number" id="timer-x" value="2" step="0.5"
+                                                onchange="updateTimerStyle()"
+                                                class="w-full text-xs p-1 border rounded dark:bg-slate-600 dark:border-slate-500 dark:text-white">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-400 mb-1">Y OFFSET
+                                                (%)</label>
+                                            <input type="number" id="timer-y" value="4" step="0.5"
+                                                onchange="updateTimerStyle()"
+                                                class="w-full text-xs p-1 border rounded dark:bg-slate-600 dark:border-slate-500 dark:text-white">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
                         <button id="btn-toggle-msg" onclick="toggleStartMessage()"
                             class="w-full bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 py-2 rounded font-bold mb-2">SHOW
                             START
@@ -129,58 +233,7 @@
             <!-- Right: Settings and Slates -->
             <div class="col-span-12 lg:col-span-8 space-y-6">
                 <!-- Transition Settings -->
-                <div
-                    class="bg-white dark:bg-slate-800 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                    <h2 class="text-lg font-bold text-blue-900 dark:text-blue-300 mb-4">Transition Settings</h2>
 
-                    <div class="grid grid-cols-2 gap-3 mb-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">TYPE</label>
-                            <select id="lt-trans-type" onchange="updateTransitions()"
-                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs">
-                                <option value="slide">Slide</option>
-                                <option value="wipe">Wipe</option>
-                                <option value="fade">Fade</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">DIRECTION</label>
-                            <select id="lt-trans-dir" onchange="updateTransitions()"
-                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs">
-                                <option value="bottom">Up (From Bottom)</option>
-                                <option value="top">Down (From Top)</option>
-                                <option value="left">Right (From Left)</option>
-                                <option value="right">Left (From Right)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">EASING</label>
-                            <select id="lt-trans-ease" onchange="updateTransitions()"
-                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs">
-                                <option value="cubic-bezier(0.16, 1, 0.3, 1)">Smooth (Default)</option>
-                                <option value="linear">Linear</option>
-                                <option value="ease-in">Ease In</option>
-                                <option value="ease-out">Ease Out</option>
-                                <option value="ease-in-out">Ease In-Out</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">LT DURATION (s)</label>
-                            <input type="number" id="lt-duration" step="0.1" value="0.8"
-                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs"
-                                onchange="updateTransitions()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">SLATE DUR (s)</label>
-                            <input type="number" id="slate-duration" step="0.1" value="0.5"
-                                class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-xs"
-                                onchange="updateTransitions()">
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Full Screen Slates -->
                 <div
@@ -206,11 +259,23 @@
     <!-- ================= OVERLAY ================= -->
     <div id="overlay" class="overlay-container">
         <!-- Slate -->
-        <div id="comp-slate" class="slate-container slate-default">
-            <img id="slate-img-bg" class="slate-img-fs hidden" src="">
-            <div id="slate-content" class="slate-content-wrapper">
-                <h1 id="slate-main" class="slate-title serif-font"></h1>
-                <h2 id="slate-sub" class="slate-subtitle"></h2>
+        <!-- Slate Wrapper for Cross-fading -->
+        <div id="slate-wrapper" class="absolute inset-0 pointer-events-none">
+            <!-- Buffer 1 -->
+            <div id="slate-1" class="slate-container slate-default" style="z-index: 1;">
+                <img class="slate-img-fs hidden" src="">
+                <div class="slate-content-wrapper hidden">
+                    <h1 class="slate-title serif-font"></h1>
+                    <h2 class="slate-subtitle"></h2>
+                </div>
+            </div>
+            <!-- Buffer 2 -->
+            <div id="slate-2" class="slate-container slate-default" style="z-index: 1;">
+                <img class="slate-img-fs hidden" src="">
+                <div class="slate-content-wrapper hidden">
+                    <h1 class="slate-title serif-font"></h1>
+                    <h2 class="slate-subtitle"></h2>
+                </div>
             </div>
         </div>
         <!-- Clock -->
@@ -226,6 +291,12 @@
         <button onclick="toggleFS()"
             class="absolute top-4 left-4 bg-white/10 hover:bg-white/30 text-white px-4 py-2 rounded transition opacity-0 hover:opacity-100 pointer-events-auto">Full
             Screen</button>
+        <div id="safe-guides" class="safe-area-overlay">
+            <div class="safe-action"></div>
+            <div class="safe-title"></div>
+            <div class="safe-crosshair"></div>
+            <div class="safe-crosshair vert"></div>
+        </div>
     </div>
 
     <!-- ================= MODALS ================= -->

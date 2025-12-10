@@ -1,415 +1,618 @@
 const socket = io();
 
-// Initial Default State
-const DEFAULT_STATE = {
-    box: {
-        width: 800,
-        height: 150,
-        x: 50, // Percent
-        y: 85, // Percent
-        bg_color: "#0f172a",
-        opacity: 0.95,
-        radius: 0,
-        border_left: 0,
-        border_color: "#3b82f6"
-    },
-    name: {
-        font: "Cinzel",
-        size: 42,
-        color: "#ffffff",
-        weight: "700",
-        transform: "none",
-        shadow_active: true,
-        shadow_color: "#000000",
-        shadow_opacity: 0.5,
-        shadow_x: 2,
-        shadow_y: 2,
-        shadow_blur: 4
-    },
-    role: {
-        font: "Lato",
-        size: 24,
-        color: "#fbbf24", // church gold
-        weight: "300",
-        transform: "uppercase",
-        shadow_active: false,
-        shadow_color: "#000000",
-        shadow_opacity: 0.5,
-        shadow_x: 2,
-        shadow_y: 2,
-        shadow_blur: 4
-    },
-    layout: {
-        align: "center", // flex-start, center, flex-end
-        gap: 5,
-        padding_x: 40
-    }
+// --- STATE ---
+const DEFAULT_LAYERS = [
+    { id: 'l_box', type: 'shape', name: 'Main Box', x: 50, y: 85, width: 800, height: 150, color: 'primary', opacity: 0.95, radius: 0, border: 0, borderColor: 'secondary', duration: 0.8, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+    { id: 'l_name', type: 'text', name: 'Name Text', x: 50, y: 83, content: 'Rev. John Doe', font: 'Cinzel', size: 42, color: 'video-white', align: 'center', weight: '700', shadow: true, delay: 100, duration: 0.8, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+    { id: 'l_role', type: 'text', name: 'Role Text', x: 50, y: 88, content: 'Senior Pastor', font: 'Lato', size: 24, color: 'accent', align: 'center', weight: '300', transform: 'uppercase', shadow: false, delay: 200, duration: 0.8, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
+];
+
+let designState = {
+    themeMode: 'standard',
+    baseColor: '#3b82f6',
+    palette: {}, // Generated
+    layers: JSON.parse(JSON.stringify(DEFAULT_LAYERS))
 };
 
-let designState = JSON.parse(JSON.stringify(DEFAULT_STATE)); // Deep copy
+let selectedLayerId = null;
 
-// --- DOM ELEMENTS ---
-const previewLt = document.getElementById('preview-lt');
-const previewName = document.getElementById('preview-name');
-const previewRole = document.getElementById('preview-role');
-const previewBg = document.getElementById('preview-bg');
-const safeGuides = document.getElementById('safe-guides');
-
-// View Options
-const chkGrid = document.getElementById('chk-grid');
-const chkSafe = document.getElementById('chk-safe');
-
-// Reset
-const btnReset = document.getElementById('btn-reset');
-
-const inputs = {
-    // Box
-    box_width: document.getElementById('inp-box-width'),
-    num_box_width: document.getElementById('num-box-width'),
-    box_height: document.getElementById('inp-box-height'),
-    num_box_height: document.getElementById('num-box-height'),
-    box_x: document.getElementById('inp-box-x'),
-    num_box_x: document.getElementById('num-box-x'),
-    box_y: document.getElementById('inp-box-y'),
-    num_box_y: document.getElementById('num-box-y'),
-    box_bg_color: document.getElementById('inp-box-bg-color'),
-    box_bg_color_text: document.getElementById('inp-box-bg-color-text'),
-    box_opacity: document.getElementById('inp-box-opacity'),
-    num_box_opacity: document.getElementById('num-box-opacity'),
-    box_radius: document.getElementById('inp-box-radius'),
-    num_box_radius: document.getElementById('num-box-radius'),
-    border_left: document.getElementById('inp-border-left'),
-    num_border_left: document.getElementById('num-border-left'),
-    border_color: document.getElementById('inp-border-color'),
-
-    // Name
-    name_font: document.getElementById('inp-name-font'),
-    name_size: document.getElementById('inp-name-size'),
-    num_name_size: document.getElementById('num-name-size'),
-    name_color: document.getElementById('inp-name-color'),
-    name_weight: document.getElementById('inp-name-weight'),
-    name_transform: document.getElementById('inp-name-transform'),
-
-    name_shadow_active: document.getElementById('chk-name-shadow'),
-    name_shadow_color: document.getElementById('col-name-shadow'),
-    name_shadow_opacity: document.getElementById('num-name-shadow-opacity'),
-    name_shadow_x: document.getElementById('num-name-shadow-x'),
-    name_shadow_y: document.getElementById('num-name-shadow-y'),
-    name_shadow_blur: document.getElementById('num-name-shadow-blur'),
-
-    // Role
-    role_font: document.getElementById('inp-role-font'),
-    role_size: document.getElementById('inp-role-size'),
-    num_role_size: document.getElementById('num-role-size'),
-    role_color: document.getElementById('inp-role-color'),
-    role_weight: document.getElementById('inp-role-weight'),
-    role_transform: document.getElementById('inp-role-transform'),
-
-    role_shadow_active: document.getElementById('chk-role-shadow'),
-    role_shadow_color: document.getElementById('col-role-shadow'),
-    role_shadow_opacity: document.getElementById('num-role-shadow-opacity'),
-    role_shadow_x: document.getElementById('num-role-shadow-x'),
-    role_shadow_y: document.getElementById('num-role-shadow-y'),
-    role_shadow_blur: document.getElementById('num-role-shadow-blur'),
-
-    // Layout
-    layout_gap: document.getElementById('inp-layout-gap'),
-    num_layout_gap: document.getElementById('num-layout-gap'),
-    padding_x: document.getElementById('inp-padding-x'),
-    num_padding_x: document.getElementById('num-padding-x'),
-    layout_align: document.getElementById('inp-layout-align')
-};
+// --- DOM ---
+const layersListEl = document.getElementById('layers-list');
+const propertiesPanelEl = document.getElementById('properties-panel');
+const previewContainer = document.getElementById('preview-container');
+const inpThemeBase = document.getElementById('inp-theme-base');
+const inpThemeBaseText = document.getElementById('inp-theme-base-text');
+const selThemeMode = document.getElementById('sel-theme-mode');
+const palettePreview = document.getElementById('palette-preview');
 
 // --- INITIALIZATION ---
+function init() {
+    updatePalette(); // Generate initial palette
+    renderLayersList();
+    renderPreview();
+    setupInteractions();
 
-socket.on('init_state', (state) => {
-    if (state.theme_config) {
-        // Merge allows new props to exist even if not in saved state
-        const mergedName = { ...DEFAULT_STATE.name, ...state.theme_config.name };
-        const mergedRole = { ...DEFAULT_STATE.role, ...state.theme_config.role };
-
-        designState = {
-            ...designState,
-            ...state.theme_config,
-            name: mergedName,
-            role: mergedRole
-        };
-        updateUIValues();
-        renderPreview();
-    }
-});
-
-// --- EVENT LISTENERS ---
-
-// Helper to attach listener to dual inputs (slider + number)
-function attachDual(rangeEl, numEl, key, subkey) {
-    if (!rangeEl || !numEl) return;
-
-    // Range changes Number
-    rangeEl.addEventListener('input', (e) => {
-        let val = parseFloat(e.target.value);
-        numEl.value = val;
-        designState[key][subkey] = val;
-        renderPreview();
+    // Theme Inputs
+    inpThemeBase.addEventListener('input', (e) => {
+        inpThemeBaseText.value = e.target.value;
+        designState.baseColor = e.target.value;
+        updatePalette();
+    });
+    inpThemeBaseText.addEventListener('change', (e) => {
+        inpThemeBase.value = e.target.value;
+        designState.baseColor = e.target.value;
+        updatePalette();
+    });
+    selThemeMode.addEventListener('change', (e) => {
+        designState.themeMode = e.target.value;
+        updatePalette();
     });
 
-    // Number changes Range
-    numEl.addEventListener('input', (e) => {
-        let val = parseFloat(e.target.value);
-        rangeEl.value = val;
-        designState[key][subkey] = val;
-        renderPreview();
+    // View Options
+    document.getElementById('chk-grid').addEventListener('change', (e) => {
+        document.getElementById('preview-bg').classList.toggle('bg-checkered', e.target.checked);
+    });
+    document.getElementById('chk-lines').addEventListener('change', (e) => {
+        document.getElementById('grid-overlay').classList.toggle('visible', e.target.checked);
+    });
+    document.getElementById('chk-safe').addEventListener('change', (e) => {
+        const guides = document.getElementById('safe-guides');
+        if (e.target.checked) guides.classList.remove('hidden');
+        else guides.classList.add('hidden');
+    });
+
+    document.getElementById('btn-auto-theme').addEventListener('click', () => {
+        const rand = '#' + Math.floor(Math.random() * 16777215).toString(16);
+        designState.baseColor = rand;
+        inpThemeBase.value = rand;
+        inpThemeBaseText.value = rand;
+        updatePalette();
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        if (confirm('Reset all layers?')) {
+            designState.layers = JSON.parse(JSON.stringify(DEFAULT_LAYERS));
+            selectedLayerId = null;
+            renderLayersList();
+            renderPreview();
+            renderProperties();
+        }
+    });
+
+    document.getElementById('btn-save').addEventListener('click', () => {
+        // Send full state including palette
+        socket.emit('update_theme_config', designState);
+        alert('Design Applied!');
     });
 }
-
-// Helper for single inputs
-function attach(el, key, subkey, type = 'input') {
-    if (!el) return;
-    el.addEventListener(type, (e) => {
-        let val = e.target.value;
-        if (e.target.type === 'checkbox') val = e.target.checked;
-        if (e.target.type === 'range' || e.target.type === 'number') val = parseFloat(val);
-
-        designState[key][subkey] = val;
-        renderPreview();
-    });
-}
-
-// Box Inputs
-attachDual(inputs.box_width, inputs.num_box_width, 'box', 'width');
-attachDual(inputs.box_height, inputs.num_box_height, 'box', 'height');
-attachDual(inputs.box_x, inputs.num_box_x, 'box', 'x');
-attachDual(inputs.box_y, inputs.num_box_y, 'box', 'y');
-attachDual(inputs.box_opacity, inputs.num_box_opacity, 'box', 'opacity');
-attachDual(inputs.box_radius, inputs.num_box_radius, 'box', 'radius');
-attachDual(inputs.border_left, inputs.num_border_left, 'box', 'border_left');
-
-// Colors
-inputs.box_bg_color.addEventListener('input', (e) => {
-    inputs.box_bg_color_text.value = e.target.value;
-    designState.box.bg_color = e.target.value;
-    renderPreview();
-});
-inputs.box_bg_color_text.addEventListener('change', (e) => {
-    inputs.box_bg_color.value = e.target.value;
-    designState.box.bg_color = e.target.value;
-    renderPreview();
-});
-attach(inputs.border_color, 'box', 'border_color');
-
-// Name Inputs
-attach(inputs.name_font, 'name', 'font', 'change');
-attachDual(inputs.name_size, inputs.num_name_size, 'name', 'size');
-attach(inputs.name_color, 'name', 'color');
-attach(inputs.name_weight, 'name', 'weight', 'change');
-attach(inputs.name_transform, 'name', 'transform', 'change');
-
-attach(inputs.name_shadow_active, 'name', 'shadow_active', 'change');
-attach(inputs.name_shadow_color, 'name', 'shadow_color');
-attach(inputs.name_shadow_opacity, 'name', 'shadow_opacity');
-attach(inputs.name_shadow_x, 'name', 'shadow_x');
-attach(inputs.name_shadow_y, 'name', 'shadow_y');
-attach(inputs.name_shadow_blur, 'name', 'shadow_blur');
-
-// Role Inputs
-attach(inputs.role_font, 'role', 'font', 'change');
-attachDual(inputs.role_size, inputs.num_role_size, 'role', 'size');
-attach(inputs.role_color, 'role', 'color');
-attach(inputs.role_weight, 'role', 'weight', 'change');
-attach(inputs.role_transform, 'role', 'transform', 'change');
-
-attach(inputs.role_shadow_active, 'role', 'shadow_active', 'change');
-attach(inputs.role_shadow_color, 'role', 'shadow_color');
-attach(inputs.role_shadow_opacity, 'role', 'shadow_opacity');
-attach(inputs.role_shadow_x, 'role', 'shadow_x');
-attach(inputs.role_shadow_y, 'role', 'shadow_y');
-attach(inputs.role_shadow_blur, 'role', 'shadow_blur');
-
-
-// Layout Inputs
-attachDual(inputs.layout_gap, inputs.num_layout_gap, 'layout', 'gap');
-attachDual(inputs.padding_x, inputs.num_padding_x, 'layout', 'padding_x');
-
-// View Options
-chkGrid.addEventListener('change', (e) => {
-    if (e.target.checked) previewBg.classList.add('bg-checkered');
-    else previewBg.classList.remove('bg-checkered');
-});
-chkSafe.addEventListener('change', (e) => {
-    if (e.target.checked) safeGuides.classList.remove('hidden');
-    else safeGuides.classList.add('hidden');
-});
-
-// Reset
-btnReset.addEventListener('click', () => {
-    if (confirm("Are you sure you want to reset to defaults?")) {
-        designState = JSON.parse(JSON.stringify(DEFAULT_STATE));
-        updateUIValues();
-        renderPreview();
-        showToast("Reset to Defaults");
-    }
-});
-
-// Button Save
-document.getElementById('btn-save').addEventListener('click', () => {
-    socket.emit('update_theme_config', designState);
-    showToast("Design Applied!");
-});
 
 // --- LOGIC ---
 
-function hexToRgba(hex, alpha) {
-    let c;
-    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-        c = hex.substring(1).split('');
-        if (c.length == 3) {
-            c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-        }
-        c = '0x' + c.join('');
-        return `rgba(${[(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',')},${alpha})`;
+function updatePalette() {
+    const pal = generatePalette(designState.baseColor, designState.themeMode);
+    if (pal) {
+        designState.palette = pal;
+        // visual update
+        palettePreview.innerHTML = `
+            <div class="flex-1 h-full" style="background:${pal.primary}" title="Primary"></div>
+            <div class="flex-1 h-full" style="background:${pal.secondary}" title="Secondary"></div>
+            <div class="flex-1 h-full" style="background:${pal.accent}" title="Accent"></div>
+            <div class="flex-1 h-full" style="background:${pal.bg}" title="Background"></div>
+        `;
+        renderPreview(); // Colors changed
     }
-    return hex;
 }
 
-function setAlign(align) {
-    designState.layout.align = align;
-    inputs.layout_align.value = align;
+function getLayer(id) { return designState.layers.find(l => l.id === id); }
+
+function selectLayer(id) {
+    selectedLayerId = id;
+    renderLayersList(); // Update active state
+    renderProperties();
+
+    // Highlight in preview
+    document.querySelectorAll('.preview-element').forEach(el => el.classList.remove('ring-2', 'ring-blue-500'));
+    const el = document.getElementById(`prev-${id}`);
+    if (el) el.classList.add('ring-2', 'ring-blue-500');
+}
+
+function addLayer(type) {
+    const id = 'l_' + Date.now();
+    let layer = {
+        id,
+        type,
+        name: type === 'shape' ? 'New Shape' : 'New Text',
+        x: 50,
+        y: 50,
+        color: 'primary',
+        opacity: 1
+    };
+
+    if (type === 'shape') {
+        layer = { ...layer, width: 200, height: 50, radius: 0 };
+    } else if (type === 'text') {
+        layer = { ...layer, content: 'Text', font: 'Lato', size: 24, align: 'center', weight: '400' };
+    }
+
+    designState.layers.push(layer);
+    renderLayersList();
     renderPreview();
+    selectLayer(id);
 }
 
-function updateUIValues() {
-    // Helper
-    const setDual = (range, num, val) => {
-        if (range) range.value = val;
-        if (num) num.value = val;
+function deleteLayer(id) {
+    if (!confirm('Delete layer?')) return;
+    designState.layers = designState.layers.filter(l => l.id !== id);
+    if (selectedLayerId === id) selectedLayerId = null;
+    renderLayersList();
+    renderPreview();
+    renderProperties();
+}
+
+// --- RENDERING UI ---
+
+function renderLayersList() {
+    layersListEl.innerHTML = '';
+    designState.layers.forEach((layer, idx) => {
+        const li = document.createElement('li');
+        li.className = `flex items-center gap-2 p-2 rounded cursor-pointer border mb-1 ${selectedLayerId === layer.id ? 'bg-blue-900/40 border-blue-500' : 'bg-gray-700 border-transparent hover:bg-gray-600'}`;
+        li.innerHTML = `
+            <i class="fas fa-grip-lines text-gray-500 text-xs handle cursor-move"></i>
+            <i class="fas ${layer.type === 'shape' ? 'fa-square' : 'fa-font'} text-gray-400 text-xs w-4 text-center"></i>
+            <span class="text-xs flex-1 truncate select-none">${layer.name}</span>
+            <i class="fas fa-trash text-gray-500 hover:text-red-400 text-xs px-2" data-action="delete" data-id="${layer.id}"></i>
+        `;
+        li.onclick = (e) => {
+            if (e.target.dataset.action === 'delete') {
+                deleteLayer(e.target.dataset.id);
+            } else {
+                selectLayer(layer.id);
+            }
+        };
+        layersListEl.appendChild(li);
+    });
+}
+
+function renderProperties() {
+    propertiesPanelEl.innerHTML = '';
+    if (!selectedLayerId) {
+        propertiesPanelEl.innerHTML = '<p class="text-xs text-gray-500 text-center italic mt-4">Select a layer to edit properties</p>';
+        return;
     }
 
-    // Box
-    setDual(inputs.box_width, inputs.num_box_width, designState.box.width);
-    setDual(inputs.box_height, inputs.num_box_height, designState.box.height);
-    setDual(inputs.box_x, inputs.num_box_x, designState.box.x);
-    setDual(inputs.box_y, inputs.num_box_y, designState.box.y);
-    setDual(inputs.box_opacity, inputs.num_box_opacity, designState.box.opacity);
-    setDual(inputs.box_radius, inputs.num_box_radius, designState.box.radius);
-    setDual(inputs.border_left, inputs.num_border_left, designState.box.border_left);
+    const layer = getLayer(selectedLayerId);
+    if (!layer) return;
 
-    inputs.box_bg_color.value = designState.box.bg_color;
-    inputs.box_bg_color_text.value = designState.box.bg_color;
-    inputs.border_color.value = designState.box.border_color;
+    // Helper for input creation
+    const createInput = (label, type, key, props = {}) => {
+        const items = props.options ? props.options.map(o => `<option value="${o.val}" ${o.val == layer[key] ? 'selected' : ''}>${o.label}</option>`).join('') : '';
+        let inputHtml = '';
 
-    // Name
-    inputs.name_font.value = designState.name.font;
-    setDual(inputs.name_size, inputs.num_name_size, designState.name.size);
-    inputs.name_color.value = designState.name.color;
-    inputs.name_weight.value = designState.name.weight;
-    inputs.name_transform.value = designState.name.transform;
+        if (type === 'select') {
+            inputHtml = `<select class="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs" data-key="${key}">${items}</select>`;
+        } else if (type === 'color') {
+            // Smart Color Picker
+            const isPaletteRef = ['primary', 'secondary', 'accent', 'bg', 'video-white'].includes(layer[key]);
+            const customVal = isPaletteRef ? '#ffffff' : layer[key];
 
-    inputs.name_shadow_active.checked = designState.name.shadow_active;
-    inputs.name_shadow_color.value = designState.name.shadow_color;
-    inputs.name_shadow_opacity.value = designState.name.shadow_opacity;
-    inputs.name_shadow_x.value = designState.name.shadow_x;
-    inputs.name_shadow_y.value = designState.name.shadow_y;
-    inputs.name_shadow_blur.value = designState.name.shadow_blur;
+            inputHtml = `
+                <div class="flex flex-col gap-1">
+                    <select class="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs mb-1" id="sel-color-type-${key}">
+                        <option value="custom" ${!isPaletteRef ? 'selected' : ''}>Custom</option>
+                        <option value="primary" ${layer[key] === 'primary' ? 'selected' : ''}>Theme Primary</option>
+                        <option value="secondary" ${layer[key] === 'secondary' ? 'selected' : ''}>Theme Secondary</option>
+                        <option value="accent" ${layer[key] === 'accent' ? 'selected' : ''}>Theme Accent</option>
+                        <option value="bg" ${layer[key] === 'bg' ? 'selected' : ''}>Theme Background</option>
+                        <option value="video-white" ${layer[key] === 'video-white' ? 'selected' : ''}>White</option>
+                    </select>
+                    <div class="flex gap-1 ${isPaletteRef ? 'hidden' : ''}" id="grp-custom-color-${key}">
+                        <input type="color" class="w-6 h-6 rounded cursor-pointer border-0" value="${customVal}" data-key="${key}">
+                        <input type="text" class="flex-1 bg-gray-700 border border-gray-600 rounded px-2 text-xs" value="${customVal}" data-key="${key}">
+                    </div>
+                </div>
+             `;
+        } else if (type === 'range') {
+            inputHtml = `
+                <div class="flex gap-2 items-center">
+                    <input type="range" class="flex-1" min="${props.min}" max="${props.max}" step="${props.step || 1}" value="${layer[key]}" data-key="${key}">
+                    <input type="number" class="w-12 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1" value="${layer[key]}" data-key="${key}">
+                </div>
+             `;
+        } else {
+            inputHtml = `<input type="${type}" class="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs" value="${layer[key]}" data-key="${key}">`;
+        }
 
-    // Toggle visibility of shadow controls
-    document.getElementById('group-name-shadow').style.display = designState.name.shadow_active ? 'block' : 'none';
+        const div = document.createElement('div');
+        div.className = "mb-3";
+        div.innerHTML = `<label class="block text-[10px] text-gray-400 font-bold uppercase mb-1">${label}</label>${inputHtml}`;
+        return div;
+    };
 
+    // Generic Props
+    propertiesPanelEl.appendChild(createInput('Name', 'text', 'name'));
+    propertiesPanelEl.appendChild(createInput('X Position (%)', 'range', 'x', { min: 0, max: 100 }));
+    propertiesPanelEl.appendChild(createInput('Y Position (%)', 'range', 'y', { min: 0, max: 100 }));
+    propertiesPanelEl.appendChild(createInput('Color', 'color', 'color'));
+    propertiesPanelEl.appendChild(createInput('Opacity', 'range', 'opacity', { min: 0, max: 1, step: 0.01 }));
 
-    // Role
-    inputs.role_font.value = designState.role.font;
-    setDual(inputs.role_size, inputs.num_role_size, designState.role.size);
-    inputs.role_color.value = designState.role.color;
-    inputs.role_weight.value = designState.role.weight;
-    inputs.role_transform.value = designState.role.transform;
+    // Animation Props
+    const animGroup = document.createElement('div');
+    animGroup.className = "mt-4 border-t border-gray-700 pt-2";
+    animGroup.innerHTML = '<h4 class="text-[10px] font-bold uppercase text-blue-400 mb-2">Animation</h4>';
+    propertiesPanelEl.appendChild(animGroup);
 
-    inputs.role_shadow_active.checked = designState.role.shadow_active;
-    inputs.role_shadow_color.value = designState.role.shadow_color;
-    inputs.role_shadow_opacity.value = designState.role.shadow_opacity;
-    inputs.role_shadow_x.value = designState.role.shadow_x;
-    inputs.role_shadow_y.value = designState.role.shadow_y;
-    inputs.role_shadow_blur.value = designState.role.shadow_blur;
+    propertiesPanelEl.appendChild(createInput('Duration (s)', 'range', 'duration', { min: 0.1, max: 5, step: 0.1 }));
+    propertiesPanelEl.appendChild(createInput('Delay (ms)', 'range', 'delay', { min: 0, max: 2000, step: 100 }));
+    propertiesPanelEl.appendChild(createInput('Easing', 'select', 'easing', {
+        options: [
+            { val: 'ease-out', label: 'Ease Out' }, { val: 'ease-in', label: 'Ease In' }, { val: 'ease-in-out', label: 'Ease In Out' }, { val: 'linear', label: 'Linear' },
+            { val: 'cubic-bezier(0.16, 1, 0.3, 1)', label: 'Smooth (Spring)' }, { val: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)', label: 'Bounce' }
+        ]
+    }));
+    propertiesPanelEl.appendChild(createInput('Enter From', 'select', 'enterFrom', {
+        options: [
+            { val: 'bottom', label: 'Bottom' }, { val: 'top', label: 'Top' }, { val: 'left', label: 'Left' }, { val: 'right', label: 'Right' }, { val: 'fade', label: 'Fade Only' }
+        ]
+    }));
 
-    document.getElementById('group-role-shadow').style.display = designState.role.shadow_active ? 'block' : 'none';
+    // Type Specific
+    if (layer.type === 'shape') {
+        const shapeGroup = document.createElement('div');
+        shapeGroup.className = "mt-4 border-t border-gray-700 pt-2";
+        shapeGroup.innerHTML = '<h4 class="text-[10px] font-bold uppercase text-gray-500 mb-2">Shape Specs</h4>';
+        propertiesPanelEl.appendChild(shapeGroup);
 
-    // Layout
-    setDual(inputs.layout_gap, inputs.num_layout_gap, designState.layout.gap);
-    setDual(inputs.padding_x, inputs.num_padding_x, designState.layout.padding_x);
+        propertiesPanelEl.appendChild(createInput('Width (px)', 'range', 'width', { min: 10, max: 1920 }));
+        propertiesPanelEl.appendChild(createInput('Height (px)', 'range', 'height', { min: 10, max: 500 }));
+        propertiesPanelEl.appendChild(createInput('Border Radius', 'range', 'radius', { min: 0, max: 100 }));
+        propertiesPanelEl.appendChild(createInput('Border Width', 'range', 'border', { min: 0, max: 20 }));
+        propertiesPanelEl.appendChild(createInput('Border Color', 'color', 'borderColor'));
+    }
+
+    if (layer.type === 'text') {
+        const textGroup = document.createElement('div');
+        textGroup.className = "mt-4 border-t border-gray-700 pt-2";
+        textGroup.innerHTML = '<h4 class="text-[10px] font-bold uppercase text-gray-500 mb-2">Text Specs</h4>';
+        propertiesPanelEl.appendChild(textGroup);
+
+        propertiesPanelEl.appendChild(createInput('Font', 'select', 'font', {
+            options: [
+                { val: 'Cinzel', label: 'Cinzel' }, { val: 'Lato', label: 'Lato' }, { val: 'Roboto', label: 'Roboto' },
+                { val: 'Montserrat', label: 'Montserrat' }, { val: 'Open Sans', label: 'Open Sans' }, { val: 'Playfair Display', label: 'Playfair' }
+            ]
+        }));
+        propertiesPanelEl.appendChild(createInput('Size (px)', 'range', 'size', { min: 10, max: 200 }));
+        propertiesPanelEl.appendChild(createInput('Weight', 'select', 'weight', {
+            options: [
+                { val: '300', label: 'Light' }, { val: '400', label: 'Normal' }, { val: '700', label: 'Bold' }, { val: '900', label: 'Heavy' }
+            ]
+        }));
+        propertiesPanelEl.appendChild(createInput('Align', 'select', 'align', {
+            options: [
+                { val: 'left', label: 'Left' }, { val: 'center', label: 'Center' }, { val: 'right', label: 'Right' }
+            ]
+        }));
+        // Shadow checkbox manually
+        const sDiv = document.createElement('div');
+        sDiv.innerHTML = `<label class="flex items-center gap-2 cursor-pointer text-xs"><input type="checkbox" ${layer.shadow ? 'checked' : ''} id="chk-shadow"> Drop Shadow</label>`;
+        sDiv.querySelector('input').addEventListener('change', (e) => {
+            layer.shadow = e.target.checked;
+            renderPreview();
+        });
+        propertiesPanelEl.appendChild(sDiv);
+    }
+
+    // Attach Listeners
+    propertiesPanelEl.querySelectorAll('input, select').forEach(el => {
+        if (el.id === 'chk-shadow') return; // handled manually
+
+        // Special logic for the Color Type Select dropdown
+        if (el.id.startsWith('sel-color-type-')) {
+            el.addEventListener('change', (e) => {
+                const key = el.id.replace('sel-color-type-', '');
+                const grp = document.getElementById(`grp-custom-color-${key}`);
+
+                if (e.target.value === 'custom') {
+                    grp.classList.remove('hidden');
+                    // Use whatever is in the text box
+                    layer[key] = grp.querySelector('input[type=text]').value;
+                } else {
+                    grp.classList.add('hidden');
+                    layer[key] = e.target.value;
+                }
+                renderPreview();
+            });
+            return;
+        }
+
+        // Generic Listener
+        const handler = (e) => {
+            const key = el.dataset.key;
+            if (!key) return;
+            let val = e.target.value;
+            if (e.target.type === 'number' || e.target.type === 'range') val = parseFloat(val);
+
+            // Sync dual inputs
+            if (e.target.type === 'range') {
+                const num = propertiesPanelEl.querySelector(`input[type=number][data-key="${key}"]`);
+                if (num) num.value = val;
+            }
+            if (e.target.type === 'number') {
+                const rng = propertiesPanelEl.querySelector(`input[type=range][data-key="${key}"]`);
+                if (rng) rng.value = val;
+            }
+
+            layer[key] = val;
+
+            // If Text Name update, redraw list
+            if (key === 'name') renderLayersList();
+
+            renderPreview();
+        };
+        el.addEventListener('input', handler);
+    });
 }
 
+// --- RENDER PREVIEW ---
+
+function resolveColor(val) {
+    if (val === 'primary') return designState.palette.primary;
+    if (val === 'secondary') return designState.palette.secondary;
+    if (val === 'accent') return designState.palette.accent;
+    if (val === 'bg') return designState.palette.bg;
+    if (val === 'video-white') return '#ffffff';
+    return val;
+}
 
 function renderPreview() {
-    // Visibility of shadow groups
-    const nameShadowGroup = document.getElementById('group-name-shadow');
-    if (nameShadowGroup) nameShadowGroup.style.display = designState.name.shadow_active ? 'block' : 'none';
-
-    const roleShadowGroup = document.getElementById('group-role-shadow');
-    if (roleShadowGroup) roleShadowGroup.style.display = designState.role.shadow_active ? 'block' : 'none';
-
-    // We render on a 960x540 box (1/2 scale of 1080p)
+    // 50% scale container
     const scale = 0.5;
+    previewContainer.innerHTML = '';
 
-    // Box Styles
-    previewLt.style.width = (designState.box.width * scale) + 'px';
-    previewLt.style.minHeight = (designState.box.height * scale) + 'px';
+    designState.layers.forEach(layer => {
+        const el = document.createElement('div');
+        el.id = `prev-${layer.id}`;
+        el.className = 'preview-element absolute transition-colors duration-200 cursor-move';
+        el.dataset.id = layer.id;
 
-    // Positioning
-    previewLt.style.left = designState.box.x + '%';
-    previewLt.style.top = designState.box.y + '%';
-    previewLt.style.transform = 'translate(-50%, -50%)';
+        // Common Styles
+        el.style.left = layer.x + '%';
+        el.style.top = layer.y + '%';
 
-    // Background
-    const hex = designState.box.bg_color;
-    previewLt.style.backgroundColor = hexToRgba(hex, designState.box.opacity);
+        let tx = '-50%';
+        if (layer.align === 'left') tx = '0%';
+        if (layer.align === 'right') tx = '-100%';
+        el.style.transform = `translate(${tx}, -50%)`;
 
-    previewLt.style.borderRadius = designState.box.radius + 'px';
-    previewLt.style.borderLeft = `${designState.box.border_left * scale}px solid ${designState.box.border_color}`;
+        const bg = hexToRgba(resolveColor(layer.color), layer.opacity);
 
-    // Layout
-    previewLt.style.alignItems = designState.layout.align === 'start' ? 'flex-start' : (designState.layout.align === 'end' ? 'flex-end' : 'center');
-    previewLt.style.textAlign = designState.layout.align === 'start' ? 'left' : (designState.layout.align === 'end' ? 'right' : 'center');
-    previewLt.style.gap = (designState.layout.gap * scale) + 'px';
-    previewLt.style.paddingLeft = (designState.layout.padding_x * scale) + 'px';
-    previewLt.style.paddingRight = (designState.layout.padding_x * scale) + 'px';
+        if (layer.type === 'shape') {
+            el.style.width = (layer.width * scale) + 'px';
+            el.style.height = (layer.height * scale) + 'px';
+            el.style.backgroundColor = bg;
+            el.style.borderRadius = layer.radius + 'px';
+            if (layer.border > 0) {
+                el.style.border = `${layer.border * scale}px solid ${resolveColor(layer.borderColor || '#000')}`;
+            }
+        } else if (layer.type === 'text') {
+            el.innerText = layer.content;
+            el.style.whiteSpace = 'nowrap';
+            el.style.fontFamily = layer.font;
+            el.style.fontSize = (layer.size * scale) + 'px';
+            el.style.color = bg;
+            el.style.fontWeight = layer.weight;
+            el.style.textAlign = layer.align;
+            if (layer.transform) el.style.textTransform = layer.transform;
+            if (layer.shadow) el.style.textShadow = '1px 1px 2px rgba(0,0,0,0.8)';
 
-    // Name Styles
-    previewName.style.fontFamily = designState.name.font;
-    previewName.style.fontSize = (designState.name.size * scale) + 'px';
-    previewName.style.color = designState.name.color;
-    previewName.style.fontWeight = designState.name.weight;
-    previewName.style.textTransform = designState.name.transform;
+            el.style.pointerEvents = 'auto';
+            el.style.userSelect = 'none';
+        }
 
-    if (designState.name.shadow_active) {
-        const c = hexToRgba(designState.name.shadow_color, designState.name.shadow_opacity);
-        previewName.style.textShadow = `${designState.name.shadow_x}px ${designState.name.shadow_y}px ${designState.name.shadow_blur}px ${c}`;
-    } else {
-        previewName.style.textShadow = 'none';
-    }
+        // Click to select
+        el.addEventListener('mousedown', (e) => {
+            if (selectedLayerId !== layer.id) {
+                selectLayer(layer.id);
+            }
+        });
 
-    // Role Styles
-    previewRole.style.fontFamily = designState.role.font;
-    previewRole.style.fontSize = (designState.role.size * scale) + 'px';
-    previewRole.style.color = designState.role.color;
-    previewRole.style.fontWeight = designState.role.weight;
-    previewRole.style.textTransform = designState.role.transform;
+        previewContainer.appendChild(el);
+    });
 
-    if (designState.role.shadow_active) {
-        const c = hexToRgba(designState.role.shadow_color, designState.role.shadow_opacity);
-        previewRole.style.textShadow = `${designState.role.shadow_x}px ${designState.role.shadow_y}px ${designState.role.shadow_blur}px ${c}`;
-    } else {
-        previewRole.style.textShadow = 'none';
+    if (selectedLayerId) {
+        // re-apply border ring
+        const el = document.getElementById(`prev-${selectedLayerId}`);
+        if (el) el.classList.add('ring-2', 'ring-blue-500');
     }
 }
 
-function showToast(msg) {
-    // Simple toast
-    const el = document.createElement('div');
-    el.innerText = msg;
-    el.className = "fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow-lg animate-bounce z-50";
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 2000);
+// --- INTERACTIONS ---
+// --- INTERACTIONS ---
+function setupInteractions() {
+    // 1. Sortable Layers
+    new Sortable(layersListEl, {
+        handle: '.handle',
+        animation: 150,
+        onEnd: (evt) => {
+            // Update array order based on DOM
+            const item = designState.layers.splice(evt.oldIndex, 1)[0];
+            designState.layers.splice(evt.newIndex, 0, item);
+            renderPreview(); // Z-index changes
+        }
+    });
+
+    // 2. InteractJS Dragging
+    let dragState = null;
+
+    interact('.preview-element').draggable({
+        listeners: {
+            start(event) {
+                const target = event.target;
+                const container = document.getElementById('preview-container');
+                const contRect = container.getBoundingClientRect();
+                const targetRect = target.getBoundingClientRect();
+
+                dragState = {
+                    startLeft: targetRect.left - contRect.left,
+                    startTop: targetRect.top - contRect.top,
+                    totalDX: 0,
+                    totalDY: 0,
+                    width: targetRect.width,
+                    height: targetRect.height,
+                    contW: contRect.width,
+                    contH: contRect.height,
+                    contRect: contRect
+                };
+            },
+            move(event) {
+                if (!dragState) return;
+                const target = event.target;
+                const id = target.dataset.id;
+                const layer = getLayer(id);
+                if (!layer) return;
+
+                if (selectedLayerId !== id) selectLayer(id);
+
+                // Accumulate "Physical" Movement
+                dragState.totalDX += event.dx;
+                dragState.totalDY += event.dy;
+
+                // Proposed Position (un-snapped)
+                let l = dragState.startLeft + dragState.totalDX;
+                let t = dragState.startTop + dragState.totalDY;
+                let width = dragState.width;
+                let height = dragState.height;
+                let r = l + width;
+                let b = t + height;
+                let cx = l + width / 2;
+                let cy = t + height / 2;
+
+                // Snap Logic
+                const THRESHOLD = 5; // px
+                const snapX = [];
+                const snapY = [];
+                const contRect = dragState.contRect;
+
+                // 1. Center
+                snapX.push({ value: contRect.width / 2, type: 'center' });
+                snapY.push({ value: contRect.height / 2, type: 'center' });
+
+                // 2. Other Elements
+                document.querySelectorAll('.preview-element').forEach(el => {
+                    if (el.dataset.id === id) return;
+                    const r = el.getBoundingClientRect();
+                    const elL = r.left - contRect.left;
+                    const elT = r.top - contRect.top;
+                    snapX.push({ value: elL, type: 'edge' });
+                    snapX.push({ value: elL + r.width, type: 'edge' });
+                    snapX.push({ value: elL + r.width / 2, type: 'center' });
+                    snapY.push({ value: elT, type: 'edge' });
+                    snapY.push({ value: elT + r.height, type: 'edge' });
+                    snapY.push({ value: elT + r.height / 2, type: 'center' });
+                });
+
+                // Check X
+                let bestDiffX = Infinity;
+                let adjX = 0;
+                let activeGuidesX = [];
+                const checkX = (current) => {
+                    snapX.forEach(cand => {
+                        const diff = cand.value - current;
+                        if (Math.abs(diff) < THRESHOLD && Math.abs(diff) < Math.abs(bestDiffX)) {
+                            bestDiffX = diff;
+                            adjX = diff;
+                            activeGuidesX = [cand.value];
+                        } else if (Math.abs(diff) === Math.abs(bestDiffX) && Math.abs(diff) < THRESHOLD) {
+                            activeGuidesX.push(cand.value);
+                        }
+                    });
+                };
+                checkX(l); checkX(cx); checkX(r);
+
+                if (Math.abs(bestDiffX) < THRESHOLD) l += adjX;
+                else activeGuidesX = [];
+
+                // Check Y
+                let bestDiffY = Infinity;
+                let adjY = 0;
+                let activeGuidesY = [];
+                const checkY = (current) => {
+                    snapY.forEach(cand => {
+                        const diff = cand.value - current;
+                        if (Math.abs(diff) < THRESHOLD && Math.abs(diff) < Math.abs(bestDiffY)) {
+                            bestDiffY = diff;
+                            adjY = diff;
+                            activeGuidesY = [cand.value];
+                        } else if (Math.abs(diff) === Math.abs(bestDiffY) && Math.abs(diff) < THRESHOLD) {
+                            activeGuidesY.push(cand.value);
+                        }
+                    });
+                };
+                checkY(t); checkY(cy); checkY(b);
+
+                if (Math.abs(bestDiffY) < THRESHOLD) t += adjY;
+                else activeGuidesY = [];
+
+                // Update DOM Visuals
+                // Re-calculate percentages for storage
+                // Use final snapped l/t for calculation
+                const finalCX = l + width / 2;
+                const finalCY = t + height / 2;
+
+                let newPercentX = 0;
+                if (layer.align === 'left') newPercentX = (l / contRect.width) * 100;
+                else if (layer.align === 'right') newPercentX = ((l + width) / contRect.width) * 100;
+                else newPercentX = (finalCX / contRect.width) * 100;
+
+                let newPercentY = (finalCY / contRect.height) * 100;
+
+                layer.x = newPercentX;
+                layer.y = newPercentY;
+
+                target.style.left = layer.x + '%';
+                target.style.top = layer.y + '%';
+
+                // Guides
+                for (let i = 1; i <= 3; i++) document.getElementById(`guide-v-${i}`).classList.add('hidden');
+                for (let i = 1; i <= 3; i++) document.getElementById(`guide-h-${i}`).classList.add('hidden');
+                activeGuidesX.forEach((val, i) => {
+                    if (i > 2) return;
+                    const g = document.getElementById(`guide-v-${i + 1}`);
+                    g.style.left = val + 'px';
+                    g.classList.remove('hidden');
+                });
+                activeGuidesY.forEach((val, i) => {
+                    if (i > 2) return;
+                    const g = document.getElementById(`guide-h-${i + 1}`);
+                    g.style.top = val + 'px';
+                    g.classList.remove('hidden');
+                });
+
+                // Update Inputs
+                const inpX = document.querySelector(`input[data-key="x"]`);
+                const inpY = document.querySelector(`input[data-key="y"]`);
+                if (inpX) inpX.value = Math.round(layer.x * 10) / 10;
+                if (inpY) inpY.value = Math.round(layer.y * 10) / 10;
+            },
+            end() {
+                dragState = null;
+                for (let i = 1; i <= 3; i++) document.getElementById(`guide-v-${i}`).classList.add('hidden');
+                for (let i = 1; i <= 3; i++) document.getElementById(`guide-h-${i}`).classList.add('hidden');
+            }
+        }
+    });
 }
 
-// Initial Render
-renderPreview();
-
-window.setAlign = setAlign; // Expose to global for HTML onclick
+// On load
+window.addEventListener('DOMContentLoaded', () => {
+    socket.on('init_state', (state) => {
+        if (state.theme_config && state.theme_config.layers) {
+            designState = state.theme_config;
+            init();
+        } else {
+            // Old state detected or empty, stay with defaults
+            console.log("Old theme state detected, using defaults or migration needed.");
+            init();
+        }
+    });
+});

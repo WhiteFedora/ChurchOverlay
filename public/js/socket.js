@@ -10,22 +10,37 @@ socket.on('disconnect', () => {
 });
 
 socket.on('init_state', (state) => {
-    if (typeof updateStatus === 'function') updateStatus(state.status);
-    if (typeof updateLists === 'function') updateLists(state.lists);
+    try {
+        console.log('Init State:', state);
+        if (typeof updateStatus === 'function') updateStatus(state.status);
+        if (typeof updateLists === 'function') updateLists(state.lists);
 
-    // Theme first, then overlay
-    if (state.theme_config && typeof updateThemeConfig === 'function') {
-        updateThemeConfig(state.theme_config);
+        // Theme first, then overlay
+        if (state.theme_config && typeof window.updateThemeConfig === 'function') {
+            window.updateThemeConfig(state.theme_config);
+        } else if (state.theme_config && typeof updateThemeConfig === 'function') {
+            updateThemeConfig(state.theme_config);
+        }
+
+        if (typeof updateOverlay === 'function') updateOverlay(state.status);
+    } catch (e) {
+        console.error("Critical Error in init_state:", e);
     }
-
-    if (typeof updateOverlay === 'function') updateOverlay(state.status);
 });
 
 socket.on('status_changed', (status) => {
-    console.log('status_changed received:', status);
-    updateOverlay(status);
-    // updateStatus is for dashboard only, check existence
-    if (typeof updateStatus === 'function') updateStatus(status);
+    try {
+        console.log('status_changed received:', status);
+        // Attempt overlay update first
+        if (typeof updateOverlay === 'function') {
+            try { updateOverlay(status); } catch (ex) { console.error("Overlay Update Failed:", ex); }
+        }
+
+        // Always try to update dashboard status even if overlay failed
+        if (typeof updateStatus === 'function') updateStatus(status);
+    } catch (e) {
+        console.error("Critical Error in status_changed:", e);
+    }
 });
 
 socket.on('theme_config_updated', (config) => {

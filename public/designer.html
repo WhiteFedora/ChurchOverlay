@@ -11,343 +11,99 @@
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/designer.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="bg-gray-900 text-white h-screen flex overflow-hidden">
 
     <!-- Sidebar / Controls -->
     <div class="w-80 bg-gray-800 border-r border-gray-700 flex flex-col shadow-xl z-20">
-        <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+        <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900">
             <div>
                 <h1 class="text-xl font-bold text-blue-400">LT Designer</h1>
-                <p class="text-xs text-gray-400">Customize your Lower Third</p>
+                <p class="text-xs text-gray-400">Broadcast Quality System</p>
             </div>
-            <button id="btn-reset" class="text-xs text-red-400 hover:text-red-300 underline">Reset Defaults</button>
+            <button id="btn-reset" class="text-xs text-red-400 hover:text-red-300 underline">Reset</button>
         </div>
 
-        <div class="p-2 border-b border-gray-700 bg-gray-900/50">
-            <h3 class="text-[10px] font-bold uppercase text-gray-500 mb-1 px-2">View Options</h3>
-            <div class="flex gap-4 px-2">
-                <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
-                    <input type="checkbox" id="chk-grid" checked>
-                    Checkerboard
-                </label>
-                <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
-                    <input type="checkbox" id="chk-safe">
-                    Safe Guides
-                </label>
-            </div>
-        </div>
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
 
-        <div class="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
-
-            <!-- Global Settings -->
-            <div>
-                <h3 class="text-xs font-bold uppercase text-gray-500 mb-2">Box Layout</h3>
+            <!-- 1. Smart Palette -->
+            <div class="p-4 border-b border-gray-700 bg-gray-800/50">
+                <h3 class="text-xs font-bold uppercase text-gray-500 mb-2 flex justify-between items-center">
+                    Smart Theme
+                    <span class="text-[10px] text-blue-400 cursor-pointer hover:underline"
+                        id="btn-auto-theme">Auto-Gen</span>
+                </h3>
                 <div class="space-y-2">
-                    <div class="control-group">
-                        <label>Width (px)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="range" id="inp-box-width" min="200" max="1800" value="800" class="flex-1">
-                            <input type="number" id="num-box-width" value="800"
-                                class="w-16 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1">
+                    <div class="flex gap-2 items-end">
+                        <div class="flex-1">
+                            <label class="text-[10px] text-gray-400">Base Color</label>
+                            <div class="flex gap-1">
+                                <input type="color" id="inp-theme-base" value="#3b82f6"
+                                    class="w-8 h-8 rounded cursor-pointer border-0">
+                                <input type="text" id="inp-theme-base-text" value="#3b82f6"
+                                    class="flex-1 bg-gray-700 border border-gray-600 rounded px-2 text-xs h-8">
+                            </div>
                         </div>
+                        <select id="sel-theme-mode"
+                            class="bg-gray-700 border border-gray-600 rounded px-2 h-8 text-xs w-24">
+                            <option value="standard">Standard</option>
+                            <option value="vibrant">Vibrant</option>
+                            <option value="pastel">Pastel</option>
+                        </select>
                     </div>
-                    <div class="control-group">
-                        <label>Height (px)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="range" id="inp-box-height" min="50" max="400" value="150" class="flex-1">
-                            <input type="number" id="num-box-height" value="150"
-                                class="w-16 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>X Position (%)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="range" id="inp-box-x" min="0" max="100" value="50" class="flex-1">
-                            <input type="number" id="num-box-x" value="50"
-                                class="w-16 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>Y Position (%)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="range" id="inp-box-y" min="0" max="100" value="85" class="flex-1">
-                            <input type="number" id="num-box-y" value="85"
-                                class="w-16 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>Background Color</label>
-                        <div class="flex gap-2">
-                            <input type="color" id="inp-box-bg-color" value="#0f172a"
-                                class="w-8 h-8 rounded cursor-pointer border-0">
-                            <input type="text" id="inp-box-bg-color-text" value="#0f172a"
-                                class="flex-1 bg-gray-700 border border-gray-600 rounded px-2 text-xs">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>Opacity (0-1)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="range" id="inp-box-opacity" min="0" max="1" step="0.01" value="0.95"
-                                class="flex-1">
-                            <input type="number" id="num-box-opacity" min="0" max="1" step="0.01" value="0.95"
-                                class="w-16 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>Border Radius (px)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="range" id="inp-box-radius" min="0" max="100" value="0" class="flex-1">
-                            <input type="number" id="num-box-radius" value="0"
-                                class="w-16 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>Border Left Width (px)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="range" id="inp-border-left" min="0" max="200" value="0" class="flex-1">
-                            <input type="number" id="num-border-left" value="0"
-                                class="w-16 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>Border Left Color</label>
-                        <input type="color" id="inp-border-color" value="#3b82f6"
-                            class="w-full h-6 rounded cursor-pointer border-0">
+                    <div id="palette-preview" class="flex gap-1 h-2 rounded overflow-hidden opacity-80">
+                        <div class="flex-1 bg-blue-500"></div>
+                        <div class="flex-1 bg-red-500"></div>
+                        <div class="flex-1 bg-yellow-500"></div>
                     </div>
                 </div>
             </div>
 
-            <hr class="border-gray-700">
-
-            <!-- Name Text Settings -->
-            <div>
-                <h3 class="text-xs font-bold uppercase text-gray-500 mb-2">Name Text</h3>
-                <div class="space-y-2">
-                    <div class="control-group">
-                        <label>Font Family</label>
-                        <select id="inp-name-font"
-                            class="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs">
-                            <option value="Cinzel">Cinzel</option>
-                            <option value="Lato">Lato</option>
-                            <option value="Roboto">Roboto</option>
-                            <option value="Montserrat">Montserrat</option>
-                            <option value="Open Sans">Open Sans</option>
-                            <option value="Playfair Display">Playfair Display</option>
-                            <option value="sans-serif">Sans Serif</option>
-                            <option value="serif">Serif</option>
-                        </select>
-                    </div>
-                    <div class="control-group">
-                        <label>Font Size (px)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="range" id="inp-name-size" min="10" max="200" value="32" class="flex-1">
-                            <input type="number" id="num-name-size" value="32"
-                                class="w-16 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>Color</label>
-                        <input type="color" id="inp-name-color" value="#ffffff"
-                            class="w-full h-6 rounded cursor-pointer border-0">
-                    </div>
-                    <div class="control-group">
-                        <label>Weight</label>
-                        <select id="inp-name-weight"
-                            class="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs">
-                            <option value="300">Light</option>
-                            <option value="400">Normal</option>
-                            <option value="700">Bold</option>
-                            <option value="900">Black/Heavy</option>
-                        </select>
-                    </div>
-                    <div class="control-group">
-                        <label>Transform</label>
-                        <select id="inp-name-transform"
-                            class="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs">
-                            <option value="none">None</option>
-                            <option value="uppercase">Uppercase</option>
-                            <option value="lowercase">Lowercase</option>
-                            <option value="capitalize">Capitalize</option>
-                        </select>
-                    </div>
-                    <div class="control-group border-t border-gray-700 pt-2 mt-2">
-                        <label class="flex items-center gap-2 cursor-pointer mb-2">
-                            <input type="checkbox" id="chk-name-shadow">
-                            <span class="font-bold">Drop Shadow</span>
-                        </label>
-                        <div id="group-name-shadow" class="space-y-2 pl-2 border-l-2 border-gray-700">
-                            <div class="flex gap-2">
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-400">Color</label>
-                                    <input type="color" id="col-name-shadow" value="#000000"
-                                        class="w-full h-6 rounded cursor-pointer border-0">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-400">Opacity</label>
-                                    <input type="number" id="num-name-shadow-opacity" min="0" max="1" step="0.1"
-                                        value="0.5"
-                                        class="w-full bg-gray-700 border border-gray-600 rounded px-1 text-xs py-1">
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-400">X Offset</label>
-                                    <input type="number" id="num-name-shadow-x" value="2"
-                                        class="w-full bg-gray-700 border border-gray-600 rounded px-1 text-xs py-1">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-400">Y Offset</label>
-                                    <input type="number" id="num-name-shadow-y" value="2"
-                                        class="w-full bg-gray-700 border border-gray-600 rounded px-1 text-xs py-1">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-400">Blur</label>
-                                    <input type="number" id="num-name-shadow-blur" min="0" value="4"
-                                        class="w-full bg-gray-700 border border-gray-600 rounded px-1 text-xs py-1">
-                                </div>
-                            </div>
+            <!-- 2. Layers List -->
+            <div class="p-2 bg-gray-900/30 border-b border-gray-700 flex-1 min-h-[150px] flex flex-col">
+                <div class="flex justify-between items-center px-2 mb-2">
+                    <h3 class="text-xs font-bold uppercase text-gray-500">Layers</h3>
+                    <div class="relative group">
+                        <button class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-2 py-0.5 rounded shadow">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </button>
+                        <!-- Add Menu -->
+                        <div
+                            class="absolute right-0 top-full mt-1 w-32 bg-gray-700 border border-gray-600 rounded shadow-xl hidden group-hover:block z-50">
+                            <button onclick="addLayer('shape')"
+                                class="block w-full text-left px-3 py-2 text-xs hover:bg-gray-600">Shape</button>
+                            <button onclick="addLayer('text')"
+                                class="block w-full text-left px-3 py-2 text-xs hover:bg-gray-600">Text</button>
+                            <!-- <button onclick="addLayer('image')" class="block w-full text-left px-3 py-2 text-xs hover:bg-gray-600">Image</button> -->
                         </div>
                     </div>
                 </div>
+
+                <ul id="layers-list" class="space-y-1 overflow-y-auto flex-1 p-1">
+                    <!-- Layer Items injected here -->
+                    <!-- Example:
+                    <li class="flex items-center gap-2 bg-gray-700 p-2 rounded cursor-pointer border border-blue-500">
+                        <i class="fas fa-grip-lines text-gray-500 text-xs"></i>
+                        <span class="text-xs flex-1 truncate">Box Background</span>
+                        <i class="fas fa-trash text-gray-500 hover:text-red-400 text-xs"></i>
+                    </li> 
+                    -->
+                </ul>
             </div>
 
-            <hr class="border-gray-700">
-
-            <!-- Role Text Settings -->
-            <div>
-                <h3 class="text-xs font-bold uppercase text-gray-500 mb-2">Role/Title Text</h3>
-                <div class="space-y-2">
-                    <div class="control-group">
-                        <label>Font Family</label>
-                        <select id="inp-role-font"
-                            class="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs">
-                            <option value="Lato" selected>Lato</option>
-                            <option value="Cinzel">Cinzel</option>
-                            <option value="Roboto">Roboto</option>
-                            <option value="Montserrat">Montserrat</option>
-                            <option value="Open Sans">Open Sans</option>
-                            <option value="Playfair Display">Playfair Display</option>
-                            <option value="sans-serif">Sans Serif</option>
-                            <option value="serif">Serif</option>
-                        </select>
-                    </div>
-                    <div class="control-group">
-                        <label>Font Size (px)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="range" id="inp-role-size" min="10" max="150" value="18" class="flex-1">
-                            <input type="number" id="num-role-size" value="18"
-                                class="w-16 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>Color</label>
-                        <input type="color" id="inp-role-color" value="#94a3b8"
-                            class="w-full h-6 rounded cursor-pointer border-0">
-                    </div>
-                    <div class="control-group">
-                        <label>Weight</label>
-                        <select id="inp-role-weight"
-                            class="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs">
-                            <option value="300" selected>Light</option>
-                            <option value="400">Normal</option>
-                            <option value="700">Bold</option>
-                            <option value="900">Black/Heavy</option>
-                        </select>
-                    </div>
-                    <div class="control-group">
-                        <label>Transform</label>
-                        <select id="inp-role-transform"
-                            class="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs">
-                            <option value="none">None</option>
-                            <option value="uppercase" selected>Uppercase</option>
-                            <option value="lowercase">Lowercase</option>
-                            <option value="capitalize">Capitalize</option>
-                        </select>
-                    </div>
-
-                    <div class="control-group border-t border-gray-700 pt-2 mt-2">
-                        <label class="flex items-center gap-2 cursor-pointer mb-2">
-                            <input type="checkbox" id="chk-role-shadow">
-                            <span class="font-bold">Drop Shadow</span>
-                        </label>
-                        <div id="group-role-shadow" class="space-y-2 pl-2 border-l-2 border-gray-700">
-                            <div class="flex gap-2">
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-400">Color</label>
-                                    <input type="color" id="col-role-shadow" value="#000000"
-                                        class="w-full h-6 rounded cursor-pointer border-0">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-400">Opacity</label>
-                                    <input type="number" id="num-role-shadow-opacity" min="0" max="1" step="0.1"
-                                        value="0.5"
-                                        class="w-full bg-gray-700 border border-gray-600 rounded px-1 text-xs py-1">
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-400">X Offset</label>
-                                    <input type="number" id="num-role-shadow-x" value="2"
-                                        class="w-full bg-gray-700 border border-gray-600 rounded px-1 text-xs py-1">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-400">Y Offset</label>
-                                    <input type="number" id="num-role-shadow-y" value="2"
-                                        class="w-full bg-gray-700 border border-gray-600 rounded px-1 text-xs py-1">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-400">Blur</label>
-                                    <input type="number" id="num-role-shadow-blur" min="0" value="4"
-                                        class="w-full bg-gray-700 border border-gray-600 rounded px-1 text-xs py-1">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <hr class="border-gray-700">
-
-            <!-- Layout / Flex -->
-            <div>
-                <h3 class="text-xs font-bold uppercase text-gray-500 mb-2">Content Layout</h3>
-                <div class="space-y-2">
-                    <div class="control-group">
-                        <label>Align Items</label>
-                        <div class="flex gap-1">
-                            <button onclick="setAlign('start')"
-                                class="flex-1 bg-gray-700 hover:bg-gray-600 rounded py-1 text-xs h-8">Left</button>
-                            <button onclick="setAlign('center')"
-                                class="flex-1 bg-gray-700 hover:bg-gray-600 rounded py-1 text-xs h-8">Center</button>
-                            <button onclick="setAlign('end')"
-                                class="flex-1 bg-gray-700 hover:bg-gray-600 rounded py-1 text-xs h-8">Right</button>
-                        </div>
-                        <input type="hidden" id="inp-layout-align" value="center">
-                    </div>
-                    <div class="control-group">
-                        <label>Gap (px)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="range" id="inp-layout-gap" min="0" max="50" value="0" class="flex-1">
-                            <input type="number" id="num-layout-gap" value="0"
-                                class="w-16 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>Padding X (px)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="range" id="inp-padding-x" min="0" max="200" value="40" class="flex-1">
-                            <input type="number" id="num-padding-x" value="40"
-                                class="w-16 bg-gray-700 border border-gray-600 rounded px-1 text-xs text-center py-1">
-                        </div>
-                    </div>
-                </div>
+            <!-- 3. Properties Panel -->
+            <div id="properties-panel" class="p-4 bg-gray-800 flex-1 overflow-y-auto border-t border-gray-700">
+                <p class="text-xs text-gray-500 text-center italic mt-4">Select a layer to edit properties</p>
+                <!-- Dynamic Content Injected Here -->
             </div>
 
         </div>
 
+        <!-- Footer Actions -->
         <div class="p-4 border-t border-gray-700 bg-gray-800">
             <button id="btn-save"
                 class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded shadow transition-colors text-sm">
@@ -357,35 +113,73 @@
     </div>
 
     <!-- Preview Canvas -->
-    <div id="preview-bg" class="flex-1 relative flex items-center justify-center overflow-hidden bg-checkered">
+    <div id="preview-bg"
+        class="flex-1 relative flex items-center justify-center overflow-hidden bg-checkered select-none">
+
+        <!-- Toolbar Overlay -->
+        <div
+            class="absolute top-4 left-4 z-10 bg-gray-900/80 p-2 rounded flex gap-4 backdrop-blur-sm border border-gray-700">
+            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                <input type="checkbox" id="chk-grid" checked>
+                Checkerboard
+            </label>
+            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                <input type="checkbox" id="chk-lines">
+                Grid
+            </label>
+            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                <input type="checkbox" id="chk-safe">
+                Safe Guides
+            </label>
+        </div>
 
         <!-- Safe Area Guide (1920x1080 scaled down to 50% = 960x540) -->
         <div class="relative shadow-2xl overflow-hidden border-4 border-gray-600 box-content"
             style="width: 960px; height: 540px; transform: scale(1); background: transparent;">
 
+            <!-- Grid Overlay -->
+            <div id="grid-overlay" class="grid-overlay"></div>
+
             <!-- Safe Overlay -->
-            <div id="safe-guides" class="absolute inset-0 hidden z-50">
+            <div id="safe-guides" class="absolute inset-0 hidden z-50 pointer-events-none">
                 <div class="safe-guide safe-action"></div>
                 <div class="safe-guide safe-title"></div>
                 <div class="crosshair"></div>
             </div>
 
-            <!-- The Lower Third Element (Preview) -->
-            <div id="preview-lt" class="absolute flex flex-col justify-center transition-all duration-300">
-                <div id="preview-name" class="leading-tight">Rev. John Doe</div>
-                <div id="preview-role" class="leading-tight">Senior Pastor</div>
+            <!-- Snap Guides (Dynamic) -->
+            <div id="snap-guides" class="absolute inset-0 z-50 pointer-events-none">
+                <div id="guide-v-1" class="absolute bg-pink-500 shadow-[0_0_2px_rgba(0,0,0,0.5)] hidden"
+                    style="width: 1px; height: 100%; top: 0;"></div>
+                <div id="guide-v-2" class="absolute bg-pink-500 shadow-[0_0_2px_rgba(0,0,0,0.5)] hidden"
+                    style="width: 1px; height: 100%; top: 0;"></div>
+                <div id="guide-v-3" class="absolute bg-pink-500 shadow-[0_0_2px_rgba(0,0,0,0.5)] hidden"
+                    style="width: 1px; height: 100%; top: 0;"></div>
 
-                <!-- Drag Handle Visual Guide -->
-                <div
-                    class="absolute -top-1 -left-1 -right-1 -bottom-1 border border-blue-500/30 rounded pointer-events-none opacity-0 hover:opacity-100 transition-opacity">
-                </div>
+                <div id="guide-h-1" class="absolute bg-pink-500 shadow-[0_0_2px_rgba(0,0,0,0.5)] hidden"
+                    style="height: 1px; width: 100%; left: 0;"></div>
+                <div id="guide-h-2" class="absolute bg-pink-500 shadow-[0_0_2px_rgba(0,0,0,0.5)] hidden"
+                    style="height: 1px; width: 100%; left: 0;"></div>
+                <div id="guide-h-3" class="absolute bg-pink-500 shadow-[0_0_2px_rgba(0,0,0,0.5)] hidden"
+                    style="height: 1px; width: 100%; left: 0;"></div>
             </div>
 
-            <div class="absolute bottom-2 right-2 text-[10px] text-gray-500 font-mono">1920x1080 (50%)</div>
+            <!-- The Lower Third Container (Preview) -->
+            <!-- Note: Layers will be absolute positioned inside this -->
+            <div id="preview-container" class="absolute inset-0 pointer-events-auto">
+                <!-- Layers injected here -->
+            </div>
+
+            <div class="absolute bottom-2 right-2 text-[10px] text-gray-500 font-mono pointer-events-none">1920x1080
+                (50%)</div>
         </div>
 
     </div>
 
+    <script src="js/utils.js"></script>
+    <!-- Includes InteractJS/SortableJS triggers if we bundles, but we might need CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script src="js/designer.js"></script>
 </body>
 

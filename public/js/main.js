@@ -6,8 +6,10 @@ var timerTarget = null;
 // --- INIT MODE ---
 // Clock tick
 setInterval(() => {
+    const el = document.getElementById('el-clock');
+    if (!el || el.classList.contains('countdown-display')) return; // Yield to countdown
     const now = new Date();
-    document.getElementById('el-clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    el.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }, 1000);
 
 // Check Mode
